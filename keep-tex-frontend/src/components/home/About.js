@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '../common';
+import { Button, AdvancedAnimatedSection } from '../common';
 import './About.css';
 
 const About = () => {
@@ -8,53 +8,93 @@ const About = () => {
     <section className="about-section">
       <div className="container">
         <div className="about-grid">
-          <div className="about-image">
+          <AdvancedAnimatedSection
+            animationType="slideFromRight"
+            duration={1.0}
+            delay={0}
+            parallax={true}
+            parallaxSpeed={0.3}
+            className="about-image"
+          >
             <div className="image-container">
               {/* Placeholder for image - will need to be added to assets */}
               <div className="image-placeholder"></div>
             </div>
-          </div>
+          </AdvancedAnimatedSection>
           
           <div className="about-content">
-            <h2 className="about-title">About KeepTex</h2>
-            <div className="about-subtitle">Your Trusted Textile Partner in Tunisia</div>
+            <AdvancedAnimatedSection
+              animationType="slideFromTop"
+              duration={1.0}
+              delay={0.2}
+            >
+              <h2 className="about-title">
+                KeepTex
+              </h2>
+            </AdvancedAnimatedSection>
             
-            <p className="about-text">
-              KeepTex is a premier textile atelier based in Tunisia, specializing in high-quality 
-              fabrics, yarns, and custom textile solutions for businesses worldwide.
-            </p>
-            
-            <p className="about-text">
-              With over 15 years of experience in the textile industry, we combine traditional 
-              craftsmanship with modern technology to deliver exceptional products that meet 
-              international standards.
-            </p>
-            
-            <p className="about-text">
-              Our team of skilled artisans and textile experts work closely with clients to 
-              understand their specific needs and provide tailored solutions that exceed expectations.
-            </p>
-            
-            <div className="about-stats">
-              <div className="stat-item">
-                <div className="stat-number">15+</div>
-                <div className="stat-label">Years Experience</div>
+            <AdvancedAnimatedSection
+              animationType="slideFromLeft"
+              duration={1.0}
+              delay={0.4}
+            >
+              <div className="about-subtitle">
+                🧵 KeepTex | Textile Factory
               </div>
+            </AdvancedAnimatedSection>
+            
+            <AdvancedAnimatedSection
+              animationType="slideFromLeft"
+              duration={1.0}
+              delay={0.6}
+              staggerChildren={0.1}
+            >
+              <p className="about-text">
+                🇹🇳 Fabrication sur mesure | Qualité pro
+              </p>
               
-              <div className="stat-item">
-                <div className="stat-number">500+</div>
-                <div className="stat-label">Happy Clients</div>
-              </div>
+              <p className="about-text">
+                📍Ezzahra, Ben Arous – Tunisie
+              </p>
               
-              <div className="stat-item">
-                <div className="stat-number">1000+</div>
-                <div className="stat-label">Projects</div>
-              </div>
-            </div>
+              <p className="about-text">
+                📩 Contact pro : keeptex77@gmail.com
+              </p>
+            </AdvancedAnimatedSection>
             
-            <Link to="/about">
-              <Button variant="primary">Learn More About Us</Button>
-            </Link>
+            <AdvancedAnimatedSection
+              animationType="fadeInScale"
+              duration={1.2}
+              delay={1.0}
+              staggerChildren={0.1}
+            >
+              <div className="about-stats">
+                <div className="stat-item">
+                  <div className="stat-number">15+</div>
+                  <div className="stat-label">Years Experience</div>
+                </div>
+                
+                <div className="stat-item">
+                  <div className="stat-number">500+</div>
+                  <div className="stat-label">Happy Clients</div>
+                </div>
+                
+                <div className="stat-item">
+                  <div className="stat-number">1000+</div>
+                  <div className="stat-label">Projects</div>
+                </div>
+              </div>
+            </AdvancedAnimatedSection>
+            
+            <AdvancedAnimatedSection
+              animationType="slideFromBottom"
+              duration={1.0}
+              delay={1.4}
+            >
+              <Link to="/contact">
+                <Button variant="primary">Contact Us</Button>
+              </Link>
+            </AdvancedAnimatedSection>
           </div>
         </div>
       </div>

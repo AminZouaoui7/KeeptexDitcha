@@ -1,12 +1,9 @@
 import React from 'react';
 
+import Contact from '../components/home/Contact';
+
 function ContactPage() {
-  return (
-    <div>
-      <h1>Contact Us</h1>
-      <p>This is the contact page.</p>
-    </div>
-  );
+  return <Contact />;
 }
 
 export default ContactPage;

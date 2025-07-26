@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Card } from '../common';
+import { Card, AdvancedAnimatedSection } from '../common';
 import './FeaturedProducts.css';
 
 
@@ -40,15 +40,44 @@ const FeaturedProducts = () => {
     <section className="featured-products">
       <div className="container">
         <div className="section-header">
-          <h2 className="section-title">Featured Products</h2>
-          <p className="section-subtitle">
-            Discover our selection of high-quality textile products
-          </p>
+          <AdvancedAnimatedSection
+            animationType="slideFromTop"
+            duration={1.0}
+            delay={0}
+          >
+            <h2 className="section-title">
+              Featured Products
+            </h2>
+          </AdvancedAnimatedSection>
+          
+          <AdvancedAnimatedSection
+            animationType="slideFromLeft"
+            duration={1.0}
+            delay={0.2}
+          >
+            <p className="section-subtitle">
+              Discover our selection of high-quality textile products
+            </p>
+          </AdvancedAnimatedSection>
         </div>
 
-        <div className="products-grid">
-          {products.map((product) => (
-            <div className="product-item" key={product._id}>
+        <AdvancedAnimatedSection
+          animationType="fadeIn"
+          duration={1.0}
+          delay={0.4}
+          staggerChildren={0.1}
+          className="products-grid"
+        >
+          {products.map((product, index) => (
+            <AdvancedAnimatedSection
+              key={product._id}
+              animationType="slideFromRight"
+              duration={1.0}
+              delay={0.1 * index}
+              parallax={true}
+              parallaxSpeed={0.2}
+              className="product-item"
+            >
               <Card
                 title={product.name}
                 image={product.images[0]}
@@ -56,15 +85,20 @@ const FeaturedProducts = () => {
                 linkTo={`/products/${product._id}`}
                 linkText="View Details"
               />
-            </div>
+            </AdvancedAnimatedSection>
           ))}
-        </div>
+        </AdvancedAnimatedSection>
 
-        <div className="view-all-container">
+        <AdvancedAnimatedSection
+          animationType="slideFromBottom"
+          duration={1.0}
+          delay={0.8}
+          className="view-all-container"
+        >
           <Link to="/products" className="view-all-link">
             View All Products
           </Link>
-        </div>
+        </AdvancedAnimatedSection>
       </div>
     </section>
   );

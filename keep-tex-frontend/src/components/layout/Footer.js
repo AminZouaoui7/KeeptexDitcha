@@ -26,8 +26,10 @@ const Footer = () => {
               <span className="logo-text">KeepTex</span>
             </div>
             <p className="footer-description">
-              A leading textile atelier in Tunisia, specializing in high-quality fabrics, 
-              custom designs, and professional textile services for local and international clients.
+              🧵 KeepTex | Textile Factory
+              🇹🇳 Fabrication sur mesure | Qualité pro
+              📍Ezzahra, Ben Arous – Tunisie
+              📩 Contact pro : keeptex77@gmail.com
             </p>
             <div className="footer-social">
               <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-link">
@@ -92,7 +94,7 @@ const Footer = () => {
             <ul className="footer-contact">
               <li>
                 <FontAwesomeIcon icon={faMapMarkerAlt} />
-                <span>123 Textile Street, Tunis, Tunisia</span>
+                <span>Ezzahra, Ben Arous – Tunisie</span>
               </li>
               <li>
                 <FontAwesomeIcon icon={faPhone} />
@@ -100,7 +102,7 @@ const Footer = () => {
               </li>
               <li>
                 <FontAwesomeIcon icon={faEnvelope} />
-                <span>info@keeptex.tn</span>
+                <span>keeptex77@gmail.com</span>
               </li>
             </ul>
           </div>

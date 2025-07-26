@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '../common';
+import { Button, AdvancedAnimatedSection, ParallaxBackground } from '../common';
+import { motion } from 'framer-motion';
+
 import './Hero.css';
 
 const images = [
@@ -22,38 +24,59 @@ const Hero = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const goToPrevious = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
-  };
 
-  const goToNext = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-  };
 
   return (
-    <section className="hero" style={{ backgroundImage: `url(${images[currentImageIndex]})` }}>
-      <div className="hero-overlay"></div>
+    <ParallaxBackground
+      backgroundImage={images[currentImageIndex]}
+      speed={0.5}
+      className="hero"
+      overlay={false}
+      overlayOpacity={0}
+    >
       <div className="hero-content">
-        <h1 className="hero-title">Premium Textile Solutions in Tunisia</h1>
-        <p className="hero-subtitle">
-          Discover our high-quality fabrics, yarns, and custom textile services for your business needs
-        </p>
-        <div className="hero-buttons">
-          <Link to="/products">
-            <Button variant="primary" size="large">
-              Explore Products
-            </Button>
-          </Link>
-          <Link to="/contact">
-            <Button variant="outline" size="large">
-              Contact Us
-            </Button>
-          </Link>
-        </div>
+        <AdvancedAnimatedSection
+          animationType="slideFromTop"
+          duration={1.0}
+          delay={0}
+        >
+          <h1 className="hero-title">
+            Premium Textile Solutions in Tunisia
+          </h1>
+        </AdvancedAnimatedSection>
+        
+        <AdvancedAnimatedSection
+          animationType="slideFromLeft"
+          duration={1.0}
+          delay={0.2}
+        >
+          <p className="hero-subtitle">
+            Discover our high-quality fabrics, yarns, and custom textile services for your business needs
+          </p>
+        </AdvancedAnimatedSection>
+        
+        <AdvancedAnimatedSection
+          animationType="slideFromBottom"
+          duration={1.0}
+          delay={0.4}
+        >
+          <div className="hero-buttons">
+            <Link to="/products">
+              <Button variant="primary" size="large">
+                Explore Products
+              </Button>
+            </Link>
+            <Link to="/contact">
+              <Button variant="primary" size="large">
+                Contact Us
+              </Button>
+            </Link>
+          </div>
+        </AdvancedAnimatedSection>
       </div>
-      <button className="hero-nav-button hero-nav-button-prev" onClick={goToPrevious}>&#10094;</button>
-      <button className="hero-nav-button hero-nav-button-next" onClick={goToNext}>&#10095;</button>
-    </section>
+      
+
+    </ParallaxBackground>
   );
 };
 

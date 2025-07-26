@@ -1,62 +1,86 @@
-const mongoose = require('mongoose');
+const { DataTypes, Model } = require('sequelize');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const sequelize = require('../sequelize');
 
-const UserSchema = new mongoose.Schema({
+class User extends Model {
+  async matchPassword(enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password);
+  }
+
+  getSignedJwtToken() {
+    return jwt.sign({ id: this.id }, process.env.JWT_SECRET, {
+      expiresIn: '30d'
+    });
+  }
+}
+
+User.init({
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true
+  },
   name: {
-    type: String,
-    required: [true, 'Veuillez ajouter un nom'],
-    trim: true,
-    maxlength: [50, 'Le nom ne peut pas dépasser 50 caractères']
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    validate: {
+      notEmpty: { msg: 'Veuillez ajouter un nom' },
+      len: { args: [1, 50], msg: 'Le nom ne peut pas dépasser 50 caractères' }
+    }
   },
   email: {
-    type: String,
-    required: [true, 'Veuillez ajouter un email'],
+    type: DataTypes.STRING,
+    allowNull: false,
     unique: true,
-    match: [
-      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-      'Veuillez ajouter un email valide'
-    ]
+    validate: {
+      isEmail: { msg: 'Veuillez ajouter un email valide' },
+      notEmpty: { msg: 'Veuillez ajouter un email' }
+    }
   },
   password: {
-    type: String,
-    required: [true, 'Veuillez ajouter un mot de passe'],
-    minlength: [6, 'Le mot de passe doit contenir au moins 6 caractères'],
-    select: false
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      len: { args: [6, 100], msg: 'Le mot de passe doit contenir au moins 6 caractères' }
+    }
   },
   role: {
-    type: String,
-    enum: ['user', 'admin'],
-    default: 'user'
+    type: DataTypes.ENUM('user', 'admin'),
+    defaultValue: 'user'
   },
-  resetPasswordToken: String,
-  resetPasswordExpire: Date,
+  resetPasswordToken: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  resetPasswordExpire: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
   createdAt: {
-    type: Date,
-    default: Date.now
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  }
+}, {
+  sequelize,
+  modelName: 'User',
+  tableName: 'users',
+  hooks: {
+    beforeCreate: async (user) => {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(user.password, salt);
+    },
+    beforeUpdate: async (user) => {
+      if (user.changed('password')) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(user.password, salt);
+      }
+    }
   }
 });
 
-// Encrypt password using bcrypt
-UserSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
-    next();
-  }
-
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
-
-// Sign JWT and return
-UserSchema.methods.getSignedJwtToken = function() {
-  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: '30d'
-  });
-};
-
-// Match user entered password to hashed password in database
-UserSchema.methods.matchPassword = async function(enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
-
-module.exports = mongoose.model('User', UserSchema);
+module.exports = User;

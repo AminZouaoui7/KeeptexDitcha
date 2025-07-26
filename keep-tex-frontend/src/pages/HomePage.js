@@ -1,13 +1,6 @@
 import React, { useEffect } from 'react';
-import { 
-  Hero, 
-  FeaturedProducts, 
-  Services, 
-  About, 
-  Testimonials, 
-  Contact, 
-  CTA 
-} from '../components/home';
+import { Hero, FeaturedProducts, Services, About, Testimonials, CTA, Contact } from '../components/home';
+import { AnimatedSection, SectionDivider } from '../components/common';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -21,13 +14,45 @@ const HomePage = () => {
 
   return (
     <div className="home-page">
-      <Hero />
-      <FeaturedProducts />
-      <Services />
-      <About />
-      <Testimonials />
-      <CTA />
-      <Contact />
+      <AnimatedSection variants={{ hidden: { opacity: 0, y: 50 }, visible: { opacity: 1, y: 0 } }}>
+        <Hero />
+      </AnimatedSection>
+      
+      <SectionDivider variant="default" delay={0.1} />
+      
+      <AnimatedSection variants={{ hidden: { opacity: 0, y: 50 }, visible: { opacity: 1, y: 0 } }} delay={0.2}>
+        <FeaturedProducts />
+      </AnimatedSection>
+      
+      <SectionDivider variant="wave" delay={0.3} />
+      
+      <AnimatedSection variants={{ hidden: { opacity: 0, y: 50 }, visible: { opacity: 1, y: 0 } }} delay={0.4}>
+        <Services />
+      </AnimatedSection>
+      
+      <SectionDivider variant="gradient" delay={0.5} />
+      
+      <AnimatedSection variants={{ hidden: { opacity: 0, y: 50 }, visible: { opacity: 1, y: 0 } }} delay={0.6}>
+        <About />
+      </AnimatedSection>
+      
+      <SectionDivider variant="default" delay={0.7} />
+      
+      <AnimatedSection variants={{ hidden: { opacity: 0, y: 50 }, visible: { opacity: 1, y: 0 } }} delay={0.8}>
+        <Testimonials />
+      </AnimatedSection>
+      
+      <SectionDivider variant="wave" delay={0.9} />
+      
+      <AnimatedSection variants={{ hidden: { opacity: 0, y: 50 }, visible: { opacity: 1, y: 0 } }} delay={1.0}>
+        <CTA />
+      </AnimatedSection>
+      
+      <SectionDivider variant="gradient" delay={1.1} />
+      
+      <AnimatedSection variants={{ hidden: { opacity: 0, y: 50 }, visible: { opacity: 1, y: 0 } }} delay={1.2}>
+        <Contact />
+      </AnimatedSection>
     </div>
   );
 };

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPhone, faEnvelope, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
-import { Button, FormInput, Alert } from '../common';
+import { Button, FormInput, Alert, AdvancedAnimatedSection } from '../common';
 import { contactService } from '../../services';
 import { validateContactForm } from '../../utils/validation';
 import './Contact.css';
 
 const Contact = () => {
+
   const initialFormState = {
     name: '',
     email: '',
@@ -72,14 +73,35 @@ const Contact = () => {
     <section className="contact-section">
       <div className="container">
         <div className="section-header">
-          <h2 className="section-title">Contact Us</h2>
-          <p className="section-subtitle">
-            Have questions or need a quote? Reach out to us today.
-          </p>
+          <AdvancedAnimatedSection
+            animationType="slideFromTop"
+            duration={1.0}
+            delay={0}
+          >
+            <h2 className="section-title">
+              Contact Us
+            </h2>
+          </AdvancedAnimatedSection>
+          
+          <AdvancedAnimatedSection
+            animationType="slideFromLeft"
+            duration={1.0}
+            delay={0.2}
+          >
+            <p className="section-subtitle">
+              Explore our products and get in touch for custom orders.
+            </p>
+          </AdvancedAnimatedSection>
         </div>
 
         <div className="contact-grid">
-          <div className="contact-info">
+          <AdvancedAnimatedSection
+            animationType="slideFromLeft"
+            duration={1.0}
+            delay={0.4}
+            staggerChildren={0.1}
+            className="contact-info"
+          >
             <h3 className="info-title">Get In Touch</h3>
             <p className="info-text">
               We're here to help with any questions about our products, services, or custom solutions.
@@ -102,7 +124,7 @@ const Contact = () => {
                 </div>
                 <div className="contact-text">
                   <h4>Email</h4>
-                  <p>info@keeptex.com</p>
+                  <p>keeptex77@gmail.com</p>
                 </div>
               </div>
 
@@ -112,7 +134,7 @@ const Contact = () => {
                 </div>
                 <div className="contact-text">
                   <h4>Address</h4>
-                  <p>123 Textile Avenue, Tunis, Tunisia</p>
+                  <p>Ezzahra, Ben Arous – Tunisie</p>
                 </div>
               </div>
             </div>
@@ -123,9 +145,14 @@ const Contact = () => {
               <p>Saturday: 9:00 AM - 1:00 PM</p>
               <p>Sunday: Closed</p>
             </div>
-          </div>
+          </AdvancedAnimatedSection>
 
-          <div className="contact-form-container">
+          <AdvancedAnimatedSection
+            animationType="slideFromRight"
+            duration={1.0}
+            delay={0.6}
+            className="contact-form-container"
+          >
             {alert.show && (
               <Alert 
                 type={alert.type} 
@@ -214,7 +241,7 @@ const Contact = () => {
                 </Button>
               </div>
             </form>
-          </div>
+          </AdvancedAnimatedSection>
         </div>
       </div>
     </section>

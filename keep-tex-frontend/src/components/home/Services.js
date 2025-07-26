@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { AdvancedAnimatedSection } from '../common';
 import {
   faArrowRight,
   faPrint,
@@ -39,15 +40,42 @@ const Services = () => {
     <section className="services-section">
       <div className="container">
         <div className="section-header">
-          <h2 className="section-title">Our Services</h2>
-          <p className="section-subtitle">
-            Professional textile services tailored to your business needs
-          </p>
+          <AdvancedAnimatedSection
+            animationType="slideFromTop"
+            duration={1.0}
+            delay={0}
+          >
+            <h2 className="section-title">
+              Our Services
+            </h2>
+          </AdvancedAnimatedSection>
+          
+          <AdvancedAnimatedSection
+            animationType="slideFromLeft"
+            duration={1.0}
+            delay={0.2}
+          >
+            <p className="section-subtitle">
+              Professional textile services tailored to your business needs
+            </p>
+          </AdvancedAnimatedSection>
         </div>
 
-        <div className="services-grid">
-          {displayedServices.map((service) => (
-            <div className="service-card" key={service._id}>
+        <AdvancedAnimatedSection
+          animationType="fadeIn"
+          duration={1.0}
+          delay={0.4}
+          staggerChildren={0.1}
+          className="services-grid"
+        >
+          {displayedServices.map((service, index) => (
+            <AdvancedAnimatedSection
+              key={service._id}
+              animationType="fadeInScale"
+              duration={1.0}
+              delay={0.1 * index}
+              className="service-card"
+            >
               <div className="service-icon">
                 {service.icon && (
                   <FontAwesomeIcon icon={service.icon} />
@@ -60,15 +88,20 @@ const Services = () => {
               <Link to={`/services/${service._id}`} className="service-link">
                 Learn More <FontAwesomeIcon icon={faArrowRight} />
               </Link>
-            </div>
+            </AdvancedAnimatedSection>
           ))}
-        </div>
+        </AdvancedAnimatedSection>
 
-        <div className="view-all-container">
+        <AdvancedAnimatedSection
+          animationType="slideFromBottom"
+          duration={1.0}
+          delay={0.8}
+          className="view-all-container"
+        >
           <Link to="/services" className="view-all-link">
             View All Services
           </Link>
-        </div>
+        </AdvancedAnimatedSection>
       </div>
     </section>
   );

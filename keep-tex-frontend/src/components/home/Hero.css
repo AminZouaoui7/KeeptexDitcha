@@ -13,7 +13,7 @@
   transition: background-image 0.5s ease-in-out;
 }
 
-.hero-overlay {
+/* .hero-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -21,7 +21,7 @@
   bottom: 0;
   background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7));
   z-index: 1;
-}
+} */
 
 .hero-content {
   position: relative;
@@ -36,6 +36,8 @@
   margin-bottom: 1.5rem;
   line-height: 1.2;
   animation: fadeInDown 1s ease-out;
+  color: #1e3a8a;
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
 }
 
 .hero-subtitle {
@@ -45,6 +47,7 @@
   opacity: 0.9;
   animation: fadeInUp 1s ease-out 0.3s;
   animation-fill-mode: both;
+  text-shadow: -1px -1px 0 #1e3a8a, 1px -1px 0 #1e3a8a, -1px 1px 0 #1e3a8a, 1px 1px 0 #1e3a8a;
 }
 
 .hero-buttons {

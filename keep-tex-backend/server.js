@@ -1,5 +1,5 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const { Sequelize } = require('sequelize');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
@@ -25,10 +25,15 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static('public'));
 }
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/keep-tex-db')
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+// Connect to PostgreSQL using Sequelize
+const sequelize = new Sequelize(process.env.POSTGRES_URI || 'postgres://user:password@localhost:5432/keep_tex_db', {
+  dialect: 'postgres',
+  logging: false,
+});
+
+sequelize.authenticate()
+  .then(() => console.log('PostgreSQL connected'))
+  .catch(err => console.error('PostgreSQL connection error:', err));
 
 // Start server
 const PORT = process.env.PORT || 5000;
