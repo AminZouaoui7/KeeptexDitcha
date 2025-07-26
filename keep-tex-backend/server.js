@@ -1,5 +1,5 @@
 const express = require('express');
-const { Sequelize } = require('sequelize');
+const sequelize = require('./sequelize');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
@@ -14,11 +14,19 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({ message: 'Welcome to Keep-Tex API' });
+});
+
 // Routes
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/services', require('./routes/serviceRoutes'));
 app.use('/api/contact', require('./routes/contactRoutes'));
 app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/commandes', require('./routes/commandeRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/feedbacks', require('./routes/feedbackRoutes'));
 
 // Serve static files (for production)
 if (process.env.NODE_ENV === 'production') {
@@ -26,14 +34,14 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Connect to PostgreSQL using Sequelize
-const sequelize = new Sequelize(process.env.POSTGRES_URI || 'postgres://user:password@localhost:5432/keep_tex_db', {
-  dialect: 'postgres',
-  logging: false,
-});
-
 sequelize.authenticate()
-  .then(() => console.log('PostgreSQL connected'))
-  .catch(err => console.error('PostgreSQL connection error:', err));
+  .then(() => {
+    console.log('PostgreSQL connected');
+    // Synchronize all models after connection is established
+    return sequelize.sync({ alter: true });
+  })
+  .then(() => console.log('All models synchronized'))
+  .catch(err => console.error('Database error:', err));
 
 // Start server
 const PORT = process.env.PORT || 5000;

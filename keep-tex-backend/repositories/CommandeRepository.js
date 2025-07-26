@@ -12,6 +12,10 @@ class CommandeRepository {
   async findAll() {
     return await Commande.findAll();
   }
+  
+  async findByUserId(userId) {
+    return await Commande.findAll({ where: { userId } });
+  }
 
   async update(id, updateData) {
     const commande = await Commande.findByPk(id);

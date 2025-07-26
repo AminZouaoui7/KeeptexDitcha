@@ -46,8 +46,38 @@ User.init({
     }
   },
   role: {
-    type: DataTypes.ENUM('user', 'admin'),
+    type: DataTypes.ENUM('user', 'admin', 'employee', 'client'),
     defaultValue: 'user'
+  },
+  // Champs pour les clients
+  num: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  // Champs pour les employés
+  etat: {
+    type: DataTypes.ENUM('Déclaré(e)', 'Non Déclaré(e)'),
+    allowNull: true
+  },
+  salaire_h: {
+    type: DataTypes.DOUBLE,
+    allowNull: true
+  },
+  conge: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  absence: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  cin: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  accounte: {
+    type: DataTypes.DOUBLE,
+    allowNull: true
   },
   resetPasswordToken: {
     type: DataTypes.STRING,

@@ -1,5 +1,6 @@
 const sequelize = require('./sequelize');
-const { Client, Admin, Employee, Commande, Produit, Feedback } = require('./models/customModels');
+const { Commande, Produit, Feedback } = require('./models/customModels');
+const User = require('./models/User');
 
 async function testConnection() {
   try {

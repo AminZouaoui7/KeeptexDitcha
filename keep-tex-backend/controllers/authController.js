@@ -1,19 +1,13 @@
 const User = require('../models/User');
+const userService = require('../services/UserService');
 
 // @desc    Register user
 // @route   POST /api/auth/register
 // @access  Public
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
-
-    // Create user
-    const user = await User.create({
-      name,
-      email,
-      password,
-      role
-    });
+    // Create user using UserService
+    const user = await userService.createUser(req.body);
 
     sendTokenResponse(user, 201, res);
   } catch (err) {
@@ -53,8 +47,8 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Check for user
-    const user = await User.findOne({ email }).select('+password');
+    // Check for user using UserService
+    const user = await userService.getUserByEmail(email);
 
     if (!user) {
       return res.status(401).json({
@@ -87,7 +81,7 @@ exports.login = async (req, res) => {
 // @access  Private
 exports.getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await userService.getUserById(req.user.id);
 
     res.status(200).json({
       success: true,

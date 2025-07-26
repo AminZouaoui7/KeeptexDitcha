@@ -12,6 +12,10 @@ class FeedbackRepository {
   async findAll() {
     return await Feedback.findAll();
   }
+  
+  async findByUserId(userId) {
+    return await Feedback.findAll({ where: { userId } });
+  }
 
   async update(id, updateData) {
     const feedback = await Feedback.findByPk(id);

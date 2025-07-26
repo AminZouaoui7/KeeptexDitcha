@@ -12,6 +12,10 @@ class CommandeService {
   async getAllCommandes() {
     return await commandeRepository.findAll();
   }
+  
+  async getCommandesByUserId(userId) {
+    return await commandeRepository.findByUserId(userId);
+  }
 
   async updateCommande(id, updateData) {
     return await commandeRepository.update(id, updateData);
