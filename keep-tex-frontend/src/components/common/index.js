@@ -7,6 +7,8 @@ import AnimatedSection from './AnimatedSection';
 import AdvancedAnimatedSection from './AdvancedAnimatedSection';
 import ParallaxBackground from './ParallaxBackground';
 import SectionDivider from './SectionDivider';
+import Modal from './Modal';
+import OrderTypeSelector from './OrderTypeSelector';
 
 export {
   Button,
@@ -18,4 +20,6 @@ export {
   AdvancedAnimatedSection,
   ParallaxBackground,
   SectionDivider,
+  Modal,
+  OrderTypeSelector,
 };

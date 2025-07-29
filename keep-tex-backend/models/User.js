@@ -87,6 +87,22 @@ User.init({
     type: DataTypes.DATE,
     allowNull: true
   },
+  emailConfirmed: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  emailConfirmationCode: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  tempEmail: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  tempEmailConfirmationCode: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW

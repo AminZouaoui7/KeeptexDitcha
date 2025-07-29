@@ -3,16 +3,27 @@ const sequelize = require('../sequelize');
 
 const Commande = sequelize.define('Commande', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  type: { type: DataTypes.ENUM('Service', 'Produit'), allowNull: false },
-  qte: { type: DataTypes.INTEGER, allowNull: false },
-  date: { type: DataTypes.DATEONLY, allowNull: false },
-  etat: { type: DataTypes.ENUM('encours', 'terminé', 'annulee'), allowNull: false },
-  prix: { type: DataTypes.DOUBLE, allowNull: false },
+  type: { type: DataTypes.STRING(50), allowNull: false },
+  type_modele: { type: DataTypes.STRING(50), allowNull: true },
+  type_tissue: { type: DataTypes.STRING(50), allowNull: true },
+  logo: { type: DataTypes.STRING, allowNull: true },
+  logo_path: { type: DataTypes.STRING, allowNull: true },
+  couleur: { type: DataTypes.STRING(50), allowNull: true },
+  quantite_totale: { type: DataTypes.INTEGER, allowNull: true },
+  prix_total: { type: DataTypes.DECIMAL(10, 2), allowNull: true },
+  acompte_requis: { type: DataTypes.DECIMAL(10, 2), allowNull: true },
+  date: { type: DataTypes.DATEONLY, allowNull: false, defaultValue: DataTypes.NOW },
+  etat: { type: DataTypes.ENUM('en attente', 'conception', 'patronnage', 'coupe', 'confection', 'finition', 'controle', 'termine'), allowNull: false, defaultValue: 'en attente' },
   userId: { type: DataTypes.UUID, allowNull: false },
-  estimation: { type: DataTypes.INTEGER, allowNull: false },
-  description: { type: DataTypes.STRING, allowNull: true },
-  photo: { type: DataTypes.BLOB('long'), allowNull: true }
+  description: { type: DataTypes.STRING, allowNull: true }
 }, { tableName: 'Commandes' });
+
+const CommandeTaille = sequelize.define('CommandeTaille', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  commande_id: { type: DataTypes.INTEGER, allowNull: false },
+  taille: { type: DataTypes.STRING(10), allowNull: false },
+  quantite: { type: DataTypes.INTEGER, allowNull: false }
+}, { tableName: 'CommandeTailles' });
 
 const Produit = sequelize.define('Produit', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -30,4 +41,8 @@ const Feedback = sequelize.define('Feedback', {
   description: { type: DataTypes.STRING, allowNull: true }
 }, { tableName: 'Feedbacks' });
 
-module.exports = { Commande, Produit, Feedback };
+// Définir les relations entre les modèles
+Commande.hasMany(CommandeTaille, { foreignKey: 'commande_id', as: 'tailles' });
+CommandeTaille.belongsTo(Commande, { foreignKey: 'commande_id' });
+
+module.exports = { Commande, CommandeTaille, Produit, Feedback };

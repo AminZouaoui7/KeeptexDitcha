@@ -1,21 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faTimes, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faTimes, faUser, faSignOutAlt, faUserEdit, faShoppingBag } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../context/AuthContext';
 import './Navbar.css';
 import { ReactComponent as Logo } from '../../logo.svg';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const location = useLocation();
+  const userMenuRef = useRef(null);
+  
+  console.log('Navbar rendering with user:', user);
+  console.log('Is authenticated:', isAuthenticated);
 
-  // Close mobile menu when route changes
+  // Close mobile menu and user menu when route changes
   useEffect(() => {
     setIsOpen(false);
+    setIsUserMenuOpen(false);
   }, [location]);
+  
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Add scroll event listener
   useEffect(() => {
@@ -38,6 +58,12 @@ const Navbar = () => {
   const handleLogout = () => {
     logout();
     setIsOpen(false);
+    setIsUserMenuOpen(false);
+  };
+  
+  const toggleUserMenu = (e) => {
+    e.stopPropagation();
+    setIsUserMenuOpen(!isUserMenuOpen);
   };
 
   const navbarClasses = [
@@ -86,24 +112,55 @@ const Navbar = () => {
           </ul>
 
           <div className="navbar-auth">
-            {user ? (
-              <div className="user-menu">
-                <button className="user-menu-button">
-                  <FontAwesomeIcon icon={faUser} />
-                  <span>{user.name}</span>
-                </button>
-                <div className="user-dropdown">
-                  {user.role === 'admin' && (
-                    <Link to="/admin" className="dropdown-item">
-                      Dashboard
-                    </Link>
-                  )}
-                  <Link to="/profile" className="dropdown-item">
-                    Profile
-                  </Link>
-                  <button onClick={handleLogout} className="dropdown-item">
-                    Logout
+            {/* Ajout de logs de débogage */}
+            {console.log('Navbar rendering - user state:', user)}
+            {console.log('User type:', typeof user)}
+            {console.log('Is user truthy?', !!user)}
+            {console.log('User keys:', user ? Object.keys(user) : 'No user')}
+            {console.log('Local storage token:', localStorage.getItem('token'))}
+            {console.log('Local storage user:', localStorage.getItem('user'))}
+            {localStorage.getItem('token') ? (
+              <div className="user-menu" ref={userMenuRef}>
+                <div className="user-avatar-container">
+                  <div className="user-avatar">
+                    {user && user.name ? user.name.charAt(0).toUpperCase() : <FontAwesomeIcon icon={faUser} />}
+                  </div>
+                  <button className="burger-menu-button" onClick={toggleUserMenu}>
+                    <FontAwesomeIcon icon={isUserMenuOpen ? faTimes : faBars} />
                   </button>
+                </div>
+                <div className={`user-dropdown ${isUserMenuOpen ? 'is-open' : ''}`}>
+                  <div className="dropdown-header">
+                    <div className="dropdown-user-info">
+                      <div className="dropdown-avatar">
+                        {user && user.name ? user.name.charAt(0).toUpperCase() : <FontAwesomeIcon icon={faUser} />}
+                      </div>
+                      <div className="dropdown-user-details">
+                        <span className="dropdown-user-name">{user && user.name ? user.name : 'Utilisateur'}</span>
+                        <span className="dropdown-user-email">{user && user.email ? user.email : 'Connecté'}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="dropdown-body">
+                    {user && user.role === 'admin' && (
+                      <Link to="/admin" className="dropdown-item">
+                        <FontAwesomeIcon icon={faUser} className="dropdown-item-icon" />
+                        <span>Dashboard</span>
+                      </Link>
+                    )}
+                    <Link to="/profile" className="dropdown-item">
+                      <FontAwesomeIcon icon={faUserEdit} className="dropdown-item-icon" />
+                      <span>Mon profil</span>
+                    </Link>
+                    <Link to="/orders" className="dropdown-item">
+                      <FontAwesomeIcon icon={faShoppingBag} className="dropdown-item-icon" />
+                      <span>Mes commandes</span>
+                    </Link>
+                    <button onClick={handleLogout} className="dropdown-item">
+                      <FontAwesomeIcon icon={faSignOutAlt} className="dropdown-item-icon" />
+                      <span>Déconnexion</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (

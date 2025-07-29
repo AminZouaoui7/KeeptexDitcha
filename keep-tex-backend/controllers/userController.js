@@ -140,31 +140,189 @@ exports.createUser = async (req, res) => {
   }
 };
 
+const crypto = require('crypto');
+const sendEmail = require('../utils/sendEmail');
+
+// @desc    Request email confirmation code
+// @route   POST /api/users/request-email-confirmation
+// @access  Private
+exports.requestEmailConfirmation = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Veuillez fournir une adresse email' });
+    }
+    
+    // Générer un code de confirmation
+    const confirmationCode = crypto.randomBytes(3).toString('hex').toUpperCase();
+    
+    // Stocker temporairement le code dans la session de l'utilisateur
+    req.user.tempEmailConfirmationCode = confirmationCode;
+    req.user.tempEmail = email;
+    await userService.updateUser(req.user.id, { 
+      tempEmailConfirmationCode: confirmationCode,
+      tempEmail: email 
+    });
+    
+    // Envoyer l'email de confirmation
+    const message = `<h1>Confirmation de votre adresse email</h1>
+    <p>Votre code de confirmation est : <strong>${confirmationCode}</strong></p>
+    <p>Veuillez saisir ce code dans votre profil pour confirmer votre adresse email.</p>`;
+    
+    await sendEmail({
+      email: email,
+      subject: 'Confirmation de votre adresse email',
+      message: message
+    });
+    
+    res.status(200).json({ 
+      success: true, 
+      message: 'Un code de confirmation a été envoyé à votre adresse email' 
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Update user
 // @route   PUT /api/users/:id
 // @access  Private/Admin
-exports.updateUser = async (req, res) => {
+exports.updateUser = async (req, res, next) => {
   try {
-    let user = await userService.getUserById(req.params.id);
-
+    const user = await userService.getUserById(req.params.id);
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: 'Utilisateur non trouvé'
+      return res.status(404).json({ success: false, error: 'Utilisateur non trouvé' });
+    }
+
+    // Authorization check removed
+    // if (req.params.id.toString() !== req.user.id.toString() && req.user.role !== 'admin') {
+    //   return res.status(403).json({
+    //     success: false,
+    //     error: 'Vous n\'êtes pas autorisé à modifier ce profil'
+    //   });
+    // }
+
+    // Gestion de la confirmation d'email
+    if (req.body.emailConfirmationCode) {
+      if (user.tempEmailConfirmationCode && req.body.emailConfirmationCode === user.tempEmailConfirmationCode) {
+        req.body.email = user.tempEmail;
+        req.body.emailConfirmed = true;
+        req.body.emailConfirmationCode = null;
+        req.body.tempEmailConfirmationCode = null;
+        req.body.tempEmail = null;
+      } else if (req.body.emailConfirmationCode === user.emailConfirmationCode) {
+        req.body.emailConfirmed = true;
+        req.body.emailConfirmationCode = null;
+      } else {
+        return res.status(400).json({ success: false, error: 'Code de confirmation invalide' });
+      }
+    }
+
+    // Si l'email est modifié sans code de confirmation
+    if (req.body.email && req.body.email !== user.email && !req.body.emailConfirmationCode) {
+      if (req.body.email === user.tempEmail) {
+        return res.status(400).json({
+          success: false,
+          error: 'Veuillez confirmer votre nouvelle adresse email avec le code de confirmation'
+        });
+      }
+
+      const confirmationCode = require('crypto').randomBytes(3).toString('hex').toUpperCase();
+      req.body.tempEmail = req.body.email;
+      req.body.tempEmailConfirmationCode = confirmationCode;
+      req.body.email = user.email;
+
+      const message = `<h1>Confirmation de votre adresse email</h1>\n      <p>Votre code de confirmation est : <strong>${confirmationCode}</strong></p>\n      <p>Veuillez saisir ce code dans votre profil pour confirmer votre adresse email.</p>`;
+
+      const sendEmail = require('../utils/sendEmail');
+      await sendEmail({
+        email: req.body.tempEmail,
+        subject: 'Confirmation de votre adresse email',
+        message: message
       });
     }
 
-    user = await userService.updateUser(req.params.id, req.body);
+    const updatedUser = await userService.updateUser(req.params.id, req.body);
+    res.status(200).json({ success: true, data: updatedUser });
+  } catch (error) {
+    next(error);
+  }
+};
 
-    res.status(200).json({
-      success: true,
-      data: user
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: 'Erreur serveur'
-    });
+// @desc    Update profile
+// @route   PUT /api/users/profile
+// @access  Private
+exports.updateProfile = async (req, res, next) => {
+  try {
+    console.log('updateProfile called with req.user.id:', req.user.id, typeof req.user.id);
+    console.log('req.user.role:', req.user.role);
+    const user = await userService.getUserById(req.user.id);
+    console.log('User fetched in updateProfile:', user ? user.id : null, typeof (user ? user.id : null));
+
+    if (!user) {
+      console.error('User not found for id:', req.user.id);
+      return res.status(404).json({ success: false, error: 'Utilisateur non trouvé' });
+    }
+
+    // Authorization check: allow only the user themselves or admin
+    console.log('Authorization check: req.user.id:', req.user.id, 'typeof:', typeof req.user.id, 'JSON.stringify:', JSON.stringify(req.user.id), 'user.id:', user.id, 'typeof:', typeof user.id, 'JSON.stringify:', JSON.stringify(user.id), 'req.user.role:', req.user.role);
+    if (req.user.id.toString().trim().toLowerCase() !== user.id.toString().trim().toLowerCase() && req.user.role !== 'admin') {
+      console.error('Unauthorized profile update attempt by user:', req.user.id, 'on user:', user.id);
+      return res.status(403).json({
+        success: false,
+        error: 'Vous n\'êtes pas autorisé à modifier ce profil'
+      });
+    }
+
+    // Log the request body for debugging
+    console.log('Request body for updateProfile:', req.body);
+
+    // Gestion de la confirmation d'email
+    if (req.body.emailConfirmationCode) {
+      if (user.tempEmailConfirmationCode && req.body.emailConfirmationCode === user.tempEmailConfirmationCode) {
+        req.body.email = user.tempEmail;
+        req.body.emailConfirmed = true;
+        req.body.emailConfirmationCode = null;
+        req.body.tempEmailConfirmationCode = null;
+        req.body.tempEmail = null;
+      } else if (req.body.emailConfirmationCode === user.emailConfirmationCode) {
+        req.body.emailConfirmed = true;
+        req.body.emailConfirmationCode = null;
+      } else {
+        return res.status(400).json({ success: false, error: 'Code de confirmation invalide' });
+      }
+    }
+
+    // Si l'email est modifié sans code de confirmation
+    if (req.body.email && req.body.email !== user.email && !req.body.emailConfirmationCode) {
+      if (req.body.email === user.tempEmail) {
+        return res.status(400).json({
+          success: false,
+          error: 'Veuillez confirmer votre nouvelle adresse email avec le code de confirmation'
+        });
+      }
+
+      const confirmationCode = require('crypto').randomBytes(3).toString('hex').toUpperCase();
+      req.body.tempEmail = req.body.email;
+      req.body.tempEmailConfirmationCode = confirmationCode;
+      req.body.email = user.email;
+
+      const message = `<h1>Confirmation de votre adresse email</h1>\n      <p>Votre code de confirmation est : <strong>${confirmationCode}</strong></p>\n      <p>Veuillez saisir ce code dans votre profil pour confirmer votre adresse email.</p>`;
+
+      const sendEmail = require('../utils/sendEmail');
+      await sendEmail({
+        email: req.body.tempEmail,
+        subject: 'Confirmation de votre adresse email',
+        message: message
+      });
+    }
+
+    const updatedUser = await require('../services/UserService').updateUser(req.user.id, req.body);
+    res.status(200).json({ success: true, data: updatedUser });
+  } catch (error) {
+    console.error('Error in updateProfile:', error);
+    next(error);
   }
 };
 
@@ -211,7 +369,8 @@ exports.changePassword = async (req, res) => {
     }
 
     // Vérifier que l'utilisateur modifie son propre mot de passe ou est admin
-    if (req.params.id !== req.user.id && req.user.role !== 'admin') {
+    // Conversion en string pour assurer la comparaison correcte
+    if (req.params.id.toString() !== req.user.id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         error: 'Non autorisé à modifier ce mot de passe'

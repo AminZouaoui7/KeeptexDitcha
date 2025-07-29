@@ -15,6 +15,7 @@ exports.protect = async (req, res, next) => {
 
   // Make sure token exists
   if (!token) {
+    console.log('No token found in request headers');
     return res.status(401).json({
       success: false,
       error: 'Non autorisé à accéder à cette ressource'
@@ -24,11 +25,14 @@ exports.protect = async (req, res, next) => {
   try {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Decoded token:', decoded);
 
     req.user = await userService.getUserById(decoded.id);
+    console.log('User fetched by ID:', req.user);
 
     next();
   } catch (err) {
+    console.log('Token verification failed:', err.message);
     return res.status(401).json({
       success: false,
       error: 'Non autorisé à accéder à cette ressource'

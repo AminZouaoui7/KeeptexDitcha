@@ -25,6 +25,7 @@ app.use('/api/services', require('./routes/serviceRoutes'));
 app.use('/api/contact', require('./routes/contactRoutes'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/commandes', require('./routes/commandeRoutes'));
+app.use('/api/commande-tailles', require('./routes/commandeTailleRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/feedbacks', require('./routes/feedbackRoutes'));
 
@@ -32,6 +33,9 @@ app.use('/api/feedbacks', require('./routes/feedbackRoutes'));
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('public'));
 }
+
+// Serve uploaded files
+app.use('/uploads', express.static('uploads'));
 
 // Connect to PostgreSQL using Sequelize
 sequelize.authenticate()

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, AdvancedAnimatedSection, ParallaxBackground } from '../common';
-import { motion } from 'framer-motion';
 
 import './Hero.css';
 
@@ -16,13 +15,41 @@ const images = [
 
 const Hero = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+
+  // Précharger les images pour des transitions plus fluides
+  useEffect(() => {
+    const preloadImages = async () => {
+      const promises = images.map((src) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.src = src;
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+      });
+      
+      try {
+        await Promise.all(promises);
+        setImagesLoaded(true);
+      } catch (error) {
+        console.error('Erreur lors du préchargement des images:', error);
+        setImagesLoaded(true); // Continuer même en cas d'erreur
+      }
+    };
+    
+    preloadImages();
+  }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 4000); // Change image every 4 seconds
-    return () => clearInterval(interval);
-  }, []);
+    // Ne démarrer le carousel que lorsque les images sont préchargées
+    if (imagesLoaded) {
+      const interval = setInterval(() => {
+        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+      }, 2500); // Change image every 2.5 seconds
+      return () => clearInterval(interval);
+    }
+  }, [imagesLoaded]);
 
 
 

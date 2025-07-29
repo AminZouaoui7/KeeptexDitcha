@@ -7,7 +7,10 @@ class UserService {
   }
 
   async getUserById(id) {
-    return await userRepository.findById(id);
+    console.log('UserService.getUserById called with id:', id);
+    const user = await userRepository.findById(id);
+    console.log('UserService.getUserById found user:', user);
+    return user;
   }
 
   async getUserByEmail(email) {

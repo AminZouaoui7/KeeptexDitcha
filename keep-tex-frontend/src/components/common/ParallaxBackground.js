@@ -34,6 +34,7 @@ const ParallaxBackground = ({
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',
+          transition: 'background-image 0.8s ease, transform 0.5s ease',
           y,
           scale,
           zIndex: -2
