@@ -50,17 +50,43 @@ const authService = {
   // Get current user
   getCurrentUser: () => {
     const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        console.log('Retrieved user from localStorage:', user);
-        return user;
-      } catch (error) {
-        console.error('Error parsing user from localStorage:', error);
-        return null;
-      }
+    const token = localStorage.getItem('token');
+    
+    if (!userStr) {
+      console.log('No user data found in localStorage');
+      return null;
     }
-    return null;
+    
+    try {
+      const user = JSON.parse(userStr);
+      console.log('Retrieved user from localStorage:', user);
+      
+      // Vérifier que les données utilisateur sont valides
+      if (!user || typeof user !== 'object') {
+        console.error('Invalid user data format in localStorage');
+        localStorage.removeItem('user');
+        throw new Error('Données utilisateur invalides');
+      }
+      
+      // Vérifier que les champs essentiels sont présents
+      if (!user.id || !user.email) {
+        console.error('Missing essential user data fields');
+        // On garde les données mais on signale le problème
+        console.warn('User data might be incomplete but keeping session');
+      }
+      
+      // Si nous avons un utilisateur mais pas de token, signaler le problème
+      if (!token) {
+        console.warn('User data exists but no token found');
+      }
+      
+      return user;
+    } catch (error) {
+      console.error('Error parsing user from localStorage:', error);
+      // En cas d'erreur de parsing, supprimer l'entrée corrompue
+      localStorage.removeItem('user');
+      throw new Error('Données utilisateur manquantes');
+    }
   },
 
   // Get current user profile from API

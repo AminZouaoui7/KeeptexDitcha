@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPhone, faEnvelope, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import { Button, FormInput, Alert, AdvancedAnimatedSection } from '../common';
-import { contactService } from '../../services';
+import contactService from '../../services/contactService';
 import { validateContactForm } from '../../utils/validation';
 import './Contact.css';
 
@@ -33,36 +33,56 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Formulaire soumis', formData);
     
     // Validate form
-    const validationErrors = validateContactForm(formData);
-    if (Object.keys(validationErrors).length > 0) {
+    const { errors: validationErrors, isValid } = validateContactForm(formData);
+    console.log('Erreurs de validation:', validationErrors, 'Formulaire valide:', isValid);
+    if (!isValid) {
       setErrors(validationErrors);
       return;
     }
 
     try {
       setLoading(true);
-      await contactService.submitContactForm(formData);
+      console.log('Envoi du formulaire au serveur...');
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      console.log('URL API complète:', apiUrl + '/contact');
       
-      // Reset form and show success message
-      setFormData(initialFormState);
-      setAlert({
-        show: true,
-        type: 'success',
-        message: 'Your message has been sent successfully! We will get back to you soon.'
-      });
-      
-      // Hide alert after 5 seconds
-      setTimeout(() => {
-        setAlert({ show: false, type: '', message: '' });
-      }, 5000);
+      try {
+        // Utiliser le service contactService pour envoyer le formulaire
+        console.log('Tentative d\'envoi avec contactService');
+        
+        const response = await contactService.submitContactForm(formData);
+        
+        console.log('Réponse du serveur:', response);
+        console.log('Formulaire envoyé avec succès');
+        
+        // Reset form and show success message
+        setFormData(initialFormState);
+        setAlert({
+          show: true,
+          type: 'success',
+          message: 'Votre message a été envoyé avec succès à rh.bhbank.tn@gmail.com! Nous vous contacterons bientôt.'
+        });
+        
+        // Hide alert after 8 seconds
+        setTimeout(() => {
+          setAlert({ show: false, type: '', message: '' });
+        }, 8000);
+      } catch (apiError) {
+        console.error('Erreur API détaillée:', apiError);
+        console.error('Message d\'erreur:', apiError.message);
+        console.error('Réponse d\'erreur:', apiError.response ? apiError.response.data : 'Pas de réponse');
+        console.error('Statut d\'erreur:', apiError.response ? apiError.response.status : 'Pas de statut');
+        throw apiError; // Relancer l'erreur pour le bloc catch externe
+      }
     } catch (error) {
       console.error('Error submitting contact form:', error);
       setAlert({
         show: true,
         type: 'error',
-        message: 'Failed to send your message. Please try again later.'
+        message: 'Échec de l\'envoi de votre message. Veuillez réessayer plus tard.'
       });
     } finally {
       setLoading(false);
@@ -158,10 +178,16 @@ const Contact = () => {
                 type={alert.type} 
                 message={alert.message} 
                 onClose={() => setAlert({ show: false, type: '', message: '' })} 
+                autoClose={true}
+                autoCloseTime={8000}
+                className={alert.type === 'success' ? 'alert-prominent' : ''}
               />
             )}
             
-            <form className="contact-form" onSubmit={handleSubmit}>
+            <form className="contact-form" onSubmit={(e) => {
+              console.log('Formulaire soumis via onSubmit');
+              handleSubmit(e);
+            }}>
               <div className="form-row">
                 <div className="form-col">
                   <FormInput
@@ -233,11 +259,15 @@ const Contact = () => {
 
               <div className="form-submit">
                 <Button 
-                  type="submit" 
+                  type="button" 
                   variant="primary" 
                   disabled={loading}
+                  onClick={(e) => {
+                    console.log('Bouton cliqué');
+                    handleSubmit(e);
+                  }}
                 >
-                  {loading ? 'Sending...' : 'Send Message'}
+                  {loading ? 'Envoi en cours...' : 'Envoyer le message'}
                 </Button>
               </div>
             </form>

@@ -17,7 +17,7 @@ const ContactSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: [true, 'Veuillez ajouter votre numéro de téléphone'],
+    required: false, // Rendre le téléphone optionnel
     maxlength: [20, 'Le numéro de téléphone ne peut pas dépasser 20 caractères']
   },
   subject: {

@@ -11,6 +11,7 @@ function RegisterPage() {
     password: '',
     confirmPassword: '',
     verificationCode: '',
+    num: '', // Numéro de téléphone
     role: 'client' // Par défaut, on inscrit un client
   });
   const [errors, setErrors] = useState({});
@@ -80,6 +81,12 @@ function RegisterPage() {
     if (verificationStep && !formData.verificationCode) {
       newErrors.verificationCode = 'Le code de vérification est requis';
     }
+
+    if (verificationStep && !formData.num) {
+      newErrors.num = 'Le numéro de téléphone est requis';
+    } else if (verificationStep && formData.num && !/^[0-9]{8}$/.test(formData.num)) {
+      newErrors.num = 'Le numéro de téléphone doit contenir 8 chiffres';
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -115,7 +122,15 @@ function RegisterPage() {
     setSuccessMessage('');
     
     // Préparer les données pour l'API (sans confirmPassword)
-    const { confirmPassword, ...userData } = formData;
+    const { confirmPassword, verificationCode, ...userData } = formData;
+    
+    // Renommer verificationCode en emailConfirmationCode pour correspondre à l'attente du backend
+    userData.emailConfirmationCode = verificationCode;
+    
+    // Convertir le numéro de téléphone en entier pour correspondre au type dans la base de données
+    if (userData.num) {
+      userData.num = parseInt(userData.num, 10);
+    }
     
     try {
       await register(userData);
@@ -194,6 +209,17 @@ function RegisterPage() {
               onChange={handleChange}
               placeholder="Entrez le code reçu par email"
               error={errors.verificationCode}
+              required
+            />
+            
+            <FormInput
+              label="Numéro de téléphone"
+              type="tel"
+              name="num"
+              value={formData.num}
+              onChange={handleChange}
+              placeholder="Entrez votre numéro de téléphone"
+              error={errors.num}
               required
             />
             

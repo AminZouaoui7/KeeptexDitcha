@@ -1,4 +1,4 @@
-const Contact = require('../models/Contact');
+const Contact = require('../models/ContactPg');
 const sendEmail = require('../utils/sendEmail');
 
 // @desc    Submit contact form
@@ -43,8 +43,8 @@ exports.submitContact = async (req, res) => {
     });
   } catch (err) {
     console.error('Erreur lors de la soumission du formulaire de contact:', err);
-    if (err.name === 'ValidationError') {
-      const messages = Object.values(err.errors).map(val => val.message);
+    if (err.name === 'SequelizeValidationError') {
+      const messages = err.errors.map(e => e.message);
 
       return res.status(400).json({
         success: false,
@@ -64,14 +64,17 @@ exports.submitContact = async (req, res) => {
 // @access  Private
 exports.getContacts = async (req, res) => {
   try {
-    const contacts = await Contact.find().sort({ createdAt: -1 });
+    const contacts = await Contact.findAll({
+      order: [['createdAt', 'DESC']]
+    });
+    
     res.status(200).json({
       success: true,
       count: contacts.length,
       data: contacts
     });
   } catch (err) {
-    console.error('Erreur lors de la suppression du message de contact:', err);
+    console.error('Erreur lors de la récupération des messages de contact:', err);
     res.status(500).json({
       success: false,
       error: 'Erreur serveur'
@@ -84,7 +87,7 @@ exports.getContacts = async (req, res) => {
 // @access  Private
 exports.getContact = async (req, res) => {
   try {
-    const contact = await Contact.findById(req.params.id);
+    const contact = await Contact.findByPk(req.params.id);
 
     if (!contact) {
       return res.status(404).json({
@@ -110,7 +113,7 @@ exports.getContact = async (req, res) => {
 // @access  Private
 exports.markAsRead = async (req, res) => {
   try {
-    let contact = await Contact.findById(req.params.id);
+    const contact = await Contact.findByPk(req.params.id);
 
     if (!contact) {
       return res.status(404).json({
@@ -119,14 +122,8 @@ exports.markAsRead = async (req, res) => {
       });
     }
 
-    contact = await Contact.findByIdAndUpdate(
-      req.params.id,
-      { read: true },
-      {
-        new: true,
-        runValidators: true
-      }
-    );
+    contact.read = true;
+    await contact.save();
 
     res.status(200).json({
       success: true,
@@ -145,7 +142,7 @@ exports.markAsRead = async (req, res) => {
 // @access  Private
 exports.deleteContact = async (req, res) => {
   try {
-    const contact = await Contact.findById(req.params.id);
+    const contact = await Contact.findByPk(req.params.id);
 
     if (!contact) {
       return res.status(404).json({
@@ -154,7 +151,7 @@ exports.deleteContact = async (req, res) => {
       });
     }
 
-    await contact.deleteOne();
+    await contact.destroy();
 
     res.status(200).json({
       success: true,

@@ -14,8 +14,10 @@ export const isValidEmail = (email) => {
  * @returns {boolean} - Whether the phone number is valid
  */
 export const isValidPhone = (phone) => {
-  // Basic phone validation - can be customized for specific country formats
-  const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
+  // Validation moins stricte pour les numéros de téléphone tunisiens et internationaux
+  // Accepte les formats comme +216 12 345 678, 12345678, etc.
+  if (!phone) return true; // Le téléphone est optionnel
+  const phoneRegex = /^[+]?[0-9\s()-]{8,}$/;
   return phoneRegex.test(phone);
 };
 
@@ -56,30 +58,34 @@ export const validateField = (type, value) => {
  * @returns {Object} - Object with isValid flag and errors object
  */
 export const validateContactForm = (formData) => {
+  console.log('Validation du formulaire:', formData);
   const errors = {};
   
   if (!formData.name || formData.name.trim() === '') {
-    errors.name = 'Name is required';
+    errors.name = 'Le nom est requis';
   }
   
   if (!formData.email || !isValidEmail(formData.email)) {
-    errors.email = 'Valid email is required';
+    errors.email = 'Un email valide est requis';
   }
   
   if (formData.phone && !isValidPhone(formData.phone)) {
-    errors.phone = 'Valid phone number is required';
+    errors.phone = 'Un numéro de téléphone valide est requis';
   }
   
   if (!formData.subject || formData.subject.trim() === '') {
-    errors.subject = 'Subject is required';
+    errors.subject = 'Le sujet est requis';
   }
   
   if (!formData.message || formData.message.trim() === '') {
-    errors.message = 'Message is required';
+    errors.message = 'Le message est requis';
   }
   
+  const isValid = Object.keys(errors).length === 0;
+  console.log('Formulaire valide:', isValid, 'Erreurs:', errors);
+  
   return {
-    isValid: Object.keys(errors).length === 0,
+    isValid: isValid,
     errors,
   };
 };

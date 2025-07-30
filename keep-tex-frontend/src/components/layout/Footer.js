@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faFacebook,
-  faTwitter,
   faInstagram,
-  faLinkedin,
+  faWhatsapp,
 } from '@fortawesome/free-brands-svg-icons';
 import {
   faMapMarkerAlt,
@@ -32,17 +31,14 @@ const Footer = () => {
               📩 Contact pro : keeptex77@gmail.com
             </p>
             <div className="footer-social">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-link">
+              <a href="https://www.facebook.com/profile.php?id=61574863814372" target="_blank" rel="noopener noreferrer" className="social-link">
                 <FontAwesomeIcon icon={faFacebook} />
               </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="social-link">
-                <FontAwesomeIcon icon={faTwitter} />
-              </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-link">
+              <a href="https://www.instagram.com/keeptex_factory/?hl=fr" target="_blank" rel="noopener noreferrer" className="social-link">
                 <FontAwesomeIcon icon={faInstagram} />
               </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="social-link">
-                <FontAwesomeIcon icon={faLinkedin} />
+              <a href="https://wa.me/21671123456" target="_blank" rel="noopener noreferrer" className="social-link">
+                <FontAwesomeIcon icon={faWhatsapp} />
               </a>
             </div>
           </div>
@@ -99,6 +95,9 @@ const Footer = () => {
               <li>
                 <FontAwesomeIcon icon={faPhone} />
                 <span>+216 71 123 456</span>
+                <a href="https://wa.me/21671123456" target="_blank" rel="noopener noreferrer" style={{ marginLeft: '8px', color: 'rgba(255, 255, 255, 0.8)' }}>
+                  <FontAwesomeIcon icon={faWhatsapp} />
+                </a>
               </li>
               <li>
                 <FontAwesomeIcon icon={faEnvelope} />

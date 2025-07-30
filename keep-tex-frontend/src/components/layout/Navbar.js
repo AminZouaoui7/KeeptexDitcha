@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faTimes, faUser, faSignOutAlt, faUserEdit, faShoppingBag } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faTimes, faUser, faSignOutAlt, faShoppingBag } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../context/AuthContext';
 import './Navbar.css';
 import { ReactComponent as Logo } from '../../logo.svg';
@@ -142,16 +142,7 @@ const Navbar = () => {
                     </div>
                   </div>
                   <div className="dropdown-body">
-                    {user && user.role === 'admin' && (
-                      <Link to="/admin" className="dropdown-item">
-                        <FontAwesomeIcon icon={faUser} className="dropdown-item-icon" />
-                        <span>Dashboard</span>
-                      </Link>
-                    )}
-                    <Link to="/profile" className="dropdown-item">
-                      <FontAwesomeIcon icon={faUserEdit} className="dropdown-item-icon" />
-                      <span>Mon profil</span>
-                    </Link>
+                    {/* // Mon Profil */}
                     <Link to="/orders" className="dropdown-item">
                       <FontAwesomeIcon icon={faShoppingBag} className="dropdown-item-icon" />
                       <span>Mes commandes</span>

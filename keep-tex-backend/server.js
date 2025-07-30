@@ -10,9 +10,32 @@ dotenv.config();
 const app = express();
 
 // Middleware
+// Configuration CORS simple
 app.use(cors());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Middleware de journalisation détaillé pour toutes les requêtes
+app.use((req, res, next) => {
+  console.log('------------------------------------------------------------');
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
+  console.log('Headers:', JSON.stringify(req.headers, null, 2));
+  
+  if (req.method !== 'GET') {
+    console.log('Body:', JSON.stringify(req.body, null, 2));
+  }
+  
+  // Intercepter la réponse pour journaliser le statut
+  const originalSend = res.send;
+  res.send = function(body) {
+    console.log(`Response status: ${res.statusCode}`);
+    console.log('------------------------------------------------------------');
+    return originalSend.call(this, body);
+  };
+  
+  next();
+});
 
 // Root route
 app.get('/', (req, res) => {
@@ -22,7 +45,8 @@ app.get('/', (req, res) => {
 // Routes
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/services', require('./routes/serviceRoutes'));
-app.use('/api/contact', require('./routes/contactRoutes'));
+// Utiliser les routes PostgreSQL pour le contact au lieu de MongoDB
+app.use('/api/contact', require('./routes/contactRoutesPg'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/commandes', require('./routes/commandeRoutes'));
 app.use('/api/commande-tailles', require('./routes/commandeTailleRoutes'));

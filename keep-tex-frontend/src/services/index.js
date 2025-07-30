@@ -5,6 +5,7 @@ import serviceService from './serviceService';
 import contactService from './contactService';
 import uploadService from './uploadService';
 import userService from './userService';
+import orderService from './orderService';
 
 export {
   api,
@@ -14,4 +15,5 @@ export {
   contactService,
   uploadService,
   userService,
+  orderService,
 };

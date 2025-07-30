@@ -15,16 +15,70 @@ export const AuthProvider = ({ children }) => {
     const initAuth = async () => {
       try {
         // Vérifier si l'utilisateur est déjà connecté
+        const token = localStorage.getItem('token');
         const currentUser = authService.getCurrentUser();
-        if (currentUser) {
-          // Verify token validity by fetching user profile
+        
+        if (token && currentUser) {
+          console.log('Token and user found in localStorage, setting user state');
+          // Définir immédiatement l'utilisateur pour éviter un état de déconnexion temporaire
+          setUser(currentUser);
+          
+          // Verify token validity by fetching user profile in background
           try {
             const profile = await authService.getProfile();
-            setUser(profile.user || profile);
+            // Mettre à jour l'utilisateur avec les données les plus récentes
+            const userData = profile.data || profile;
+            setUser(userData);
+            // Mettre à jour le localStorage avec les données les plus récentes
+            localStorage.setItem('user', JSON.stringify(userData));
+            console.log('User profile updated from API:', userData);
           } catch (err) {
             console.log('Error verifying token:', err);
-            // Si l'API échoue mais que nous avons un utilisateur en local storage, utilisons-le quand même
+            // Si l'erreur est 401, le token est expiré, mais nous gardons l'utilisateur connecté
+            // sauf si l'erreur est explicitement liée à l'authentification
+            if (err.response && err.response.status === 401) {
+              console.log('Token expired but keeping user session active');
+              // On ne déconnecte pas l'utilisateur, on garde les données locales
+            }
+            // Pour les autres erreurs (réseau, etc.), on garde l'utilisateur connecté avec les données locales
+          }
+        } else if (!token && currentUser) {
+          // Si nous avons un utilisateur mais pas de token, essayons de récupérer un nouveau token
+          console.log('User found but no token, attempting to refresh session');
+          try {
+            // Tentative de reconnexion silencieuse si nous avons des informations suffisantes
+            if (currentUser.email) {
+              // Nous ne pouvons pas faire une reconnexion complète car nous n'avons pas le mot de passe
+              // Mais nous pouvons garder l'utilisateur en session pour une meilleure expérience
+              console.log('Keeping user session with local data');
+              setUser(currentUser);
+            } else {
+              // Si nous n'avons pas assez d'informations, nettoyons le localStorage
+              localStorage.removeItem('user');
+              setUser(null);
+            }
+          } catch (refreshErr) {
+            console.error('Failed to refresh session:', refreshErr);
+            // En cas d'échec, on garde quand même l'utilisateur connecté avec les données locales
             setUser(currentUser);
+          }
+        } else if (token && !currentUser) {
+          // Si nous avons un token mais pas d'utilisateur, essayons de récupérer l'utilisateur
+          console.log('Token found but no user, trying to fetch user profile');
+          try {
+            const profile = await authService.getProfile();
+            const userData = profile.data || profile;
+            setUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+            console.log('User profile retrieved successfully:', userData);
+          } catch (err) {
+            console.log('Error fetching user profile:', err);
+            // Si nous ne pouvons pas récupérer l'utilisateur mais avons un token, gardons le token
+            // L'utilisateur pourra peut-être récupérer sa session plus tard
+            if (err.response && err.response.status === 401) {
+              // Seulement pour les erreurs 401, on nettoie le token
+              localStorage.removeItem('token');
+            }
           }
         }
         
@@ -113,7 +167,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isAuthenticated = () => {
-    return !!localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    return !!token && !!user;
   };
 
   const value = {

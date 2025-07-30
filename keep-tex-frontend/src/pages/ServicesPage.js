@@ -45,9 +45,9 @@ function ServicesPage() {
 
   const handleSelectOrderType = (type) => {
     console.log(`Type de commande sélectionné: ${type}`);
-    // Rediriger vers le formulaire de commande approprié en utilisant navigate au lieu de window.location
+    // Rediriger vers le formulaire de commande approprié en utilisant navigate
     if (type === 'pieces-coupees') {
-      navigate('/contact?type=pieces-coupees');
+      navigate('/order/pieces-coupees');
     } else if (type === 'a-a-z') {
       navigate('/order/a-to-z');
     }

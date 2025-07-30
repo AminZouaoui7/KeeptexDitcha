@@ -11,7 +11,7 @@ const UserOrdersPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth(); // Suppression de la variable user non utilisée
   const navigate = useNavigate();
 
   useEffect(() => {
