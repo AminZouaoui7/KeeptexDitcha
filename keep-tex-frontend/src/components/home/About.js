@@ -17,8 +17,11 @@ const About = () => {
             className="about-image"
           >
             <div className="image-container">
-              {/* Placeholder for image - will need to be added to assets */}
-              <div className="image-placeholder"></div>
+              <img 
+                src="/tissue-shop-with-fabrics.jpg" 
+                alt="Atelier textile KeepTex" 
+                className="about-img" 
+              />
             </div>
           </AdvancedAnimatedSection>
           

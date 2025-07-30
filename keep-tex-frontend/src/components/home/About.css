@@ -39,6 +39,21 @@
   background-size: 20px 20px;
 }
 
+.about-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.5s ease;
+}
+
+.about-img:hover {
+  transform: scale(1.03);
+}
+
 .about-content {
   padding: 2rem 0;
 }
