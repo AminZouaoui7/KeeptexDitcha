@@ -10,8 +10,12 @@ dotenv.config();
 const app = express();
 
 // Middleware
-// Configuration CORS simple
-app.use(cors());
+// Configuration CORS avancée pour permettre les appels depuis React et Flutter Web
+app.use(cors({
+  origin: '*', // Permet l'accès depuis n'importe quelle origine
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -61,18 +65,63 @@ if (process.env.NODE_ENV === 'production') {
 // Serve uploaded files
 app.use('/uploads', express.static('uploads'));
 
-// Connect to PostgreSQL using Sequelize
-sequelize.authenticate()
-  .then(() => {
-    console.log('PostgreSQL connected');
+// Connect to PostgreSQL using Sequelize with enhanced error handling
+const connectDB = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('✅ PostgreSQL connected successfully');
+    
+    // Vérifier la connexion en exécutant une requête simple
+    const [result] = await sequelize.query('SELECT NOW() as current_time');
+    console.log(`✅ Database server time: ${result[0].current_time}`);
+    
     // Synchronize all models after connection is established
-    return sequelize.sync({ alter: true });
-  })
-  .then(() => console.log('All models synchronized'))
-  .catch(err => console.error('Database error:', err));
+    await sequelize.sync({ alter: true });
+    console.log('✅ All models synchronized successfully');
+    
+    return true;
+  } catch (err) {
+    console.error('❌ Database connection error:', err);
+    console.error('❌ Please check your PostgreSQL connection settings in .env file');
+    console.error(`❌ Current connection string: ${process.env.POSTGRES_URI.replace(/:\/\/.*:(.*)@/, '://[username]:[hidden]@')}`);
+    
+    // En mode développement, on continue l'exécution même si la DB n'est pas connectée
+    if (process.env.NODE_ENV === 'production') {
+      console.error('❌ Application stopping due to database connection failure in production mode');
+      process.exit(1);
+    }
+    
+    return false;
+  }
+};
+
+// Exécuter la connexion à la base de données
+connectDB();
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const HOST = process.env.HOST || '0.0.0.0'; // Écoute sur toutes les interfaces
+app.listen(PORT, HOST, () => {
+  // Afficher l'adresse IP locale pour faciliter la connexion
+  const os = require('os');
+  const networkInterfaces = os.networkInterfaces();
+  const localIPs = [];
+  
+  // Récupérer toutes les adresses IP locales
+  Object.keys(networkInterfaces).forEach(interfaceName => {
+    const interfaces = networkInterfaces[interfaceName];
+    interfaces.forEach(iface => {
+      // Ignorer les adresses IPv6 et les interfaces loopback
+      if (iface.family === 'IPv4' && !iface.internal) {
+        localIPs.push(iface.address);
+      }
+    });
+  });
+  
   console.log(`Server running on port ${PORT}`);
+  console.log(`Available on:`);
+  console.log(`- http://localhost:${PORT}`);
+  localIPs.forEach(ip => {
+    console.log(`- http://${ip}:${PORT}`);
+  });
 });
