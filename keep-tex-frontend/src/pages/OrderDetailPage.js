@@ -124,10 +124,25 @@ const OrderDetailPage = () => {
             </div>
           </div>
 
-          {estimatedDays > 0 && (
+          {order.etat === 'livree' ? (
+            <div className="estimated-time delivered">
+              <FaShippingFast className="icon" />
+              <span>Votre commande a été <strong>livrée</strong></span>
+            </div>
+          ) : order.etat === 'annulee' ? (
+            <div className="estimated-time cancelled">
+              <FaShippingFast className="icon" />
+              <span>Votre commande a été <strong>annulée</strong></span>
+            </div>
+          ) : estimatedDays > 0 ? (
             <div className="estimated-time">
               <FaShippingFast className="icon" />
               <span>Temps estimé restant: <strong>{estimatedDays} jour{estimatedDays > 1 ? 's' : ''}</strong></span>
+            </div>
+          ) : (
+            <div className="estimated-time completed">
+              <FaShippingFast className="icon" />
+              <span>Votre commande est <strong>terminée</strong></span>
             </div>
           )}
           
@@ -202,7 +217,7 @@ const OrderDetailPage = () => {
               <div className="info-item">
                 <span className="info-label">Statut du paiement</span>
                 <span className="info-value payment-status">
-                  {order.paiement_status ? 'Payé' : 'En attente de paiement'}
+                  {order.acomptepaye ? 'Acompte payé' : (order.paiement_status ? 'Payé' : 'En attente de paiement')}
                 </span>
               </div>
             </div>
