@@ -5,7 +5,9 @@ const {
   getAllCommandes,
   updateCommande,
   deleteCommande,
-  getCommandesByUserId
+  getCommandesByUserId,
+  updateEtatCommande,
+  updateAcomptePaye
 } = require('../controllers/commandeController');
 
 const { protect, authorize } = require('../middleware/auth');
@@ -24,5 +26,13 @@ router.route('/:id')
   .get(protect, getCommandeById)
   .put(protect, upload.single('logo'), updateCommande)
   .delete(protect, deleteCommande);
+
+// Route pour mettre à jour uniquement l'état d'une commande
+router.route('/:id/etat')
+  .put(protect, updateEtatCommande);
+
+// Route pour mettre à jour uniquement le statut de paiement de l'acompte
+router.route('/:id/acomptepaye')
+  .put(protect, authorize('admin'), updateAcomptePaye);
 
 module.exports = router;

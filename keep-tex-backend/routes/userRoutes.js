@@ -9,14 +9,18 @@ const {
   getClients,
   getEmployees,
   getAdmins,
-  requestEmailConfirmation
+  requestEmailConfirmation,
+  addEmployee
 } = require('../controllers/userController');
 
 const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Protéger toutes les routes
+// Routes non protégées
+router.post('/add-employee', addEmployee);
+
+// Protéger toutes les autres routes
 router.use(protect);
 
 // Routes accessibles uniquement aux administrateurs
@@ -47,6 +51,8 @@ router.put('/:id/password', changePassword);
 
 // Route pour demander un code de confirmation d'email
 router.post('/request-email-confirmation', requestEmailConfirmation);
+
+
 
 // Route pour mettre à jour le profil utilisateur (accessible à l'utilisateur lui-même)
 router.put('/profile', async (req, res, next) => {

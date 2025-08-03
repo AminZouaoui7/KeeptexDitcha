@@ -204,7 +204,11 @@ const OrderDetailsPage = () => {
               <div className="order-estimation">
                 <p>
                   <strong>Estimation de livraison:</strong> 
-                  {calculateEstimation(order.etat) === 0 
+                  {order.etat === 'livree' 
+                    ? ' Votre commande a été livrée!' 
+                    : order.etat === 'annulee' 
+                    ? ' Votre commande a été annulée.' 
+                    : calculateEstimation(order.etat) === 0 
                     ? ' Votre commande est terminée!' 
                     : ` Environ ${calculateEstimation(order.etat)} jour${calculateEstimation(order.etat) > 1 ? 's' : ''} restant${calculateEstimation(order.etat) > 1 ? 's' : ''}`
                   }

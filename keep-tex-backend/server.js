@@ -20,6 +20,24 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Middleware de débogage pour voir le contenu de req.body et les headers
+app.use((req, res, next) => {
+  console.log('DEBUG REQ.BODY:', req.body);
+  console.log('DEBUG REQ.BODY TYPE:', typeof req.body);
+  console.log('DEBUG REQ.HEADERS:', req.headers);
+  console.log('DEBUG REQ.METHOD:', req.method);
+  console.log('DEBUG REQ.URL:', req.url);
+  
+  // Vérifier si le body est null ou undefined
+  if (req.body === null || req.body === undefined) {
+    console.log('DEBUG: req.body is null or undefined');
+    // Initialiser req.body comme un objet vide si null ou undefined
+    req.body = {};
+  }
+  
+  next();
+});
+
 // Middleware de journalisation détaillé pour toutes les requêtes
 app.use((req, res, next) => {
   console.log('------------------------------------------------------------');

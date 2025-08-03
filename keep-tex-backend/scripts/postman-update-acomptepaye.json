@@ -1,0 +1,187 @@
+{
+  "info": {
+    "_postman_id": "b5f8c8e0-5f1a-4f3e-8b1a-5f1a4f3e8b1a",
+    "name": "KeepTex - Update Acompte Paye",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Login Admin",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Extraire le token de la réponse",
+              "var jsonData = pm.response.json();",
+              "if (jsonData.token) {",
+              "    pm.environment.set(\"token\", jsonData.token);",
+              "    console.log(\"Token sauvegardé dans l'environnement\");",
+              "} else {",
+              "    console.log(\"Pas de token dans la réponse\");",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"admin@keeptex.com\",\n    \"password\": \"admin123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        },
+        "description": "Se connecter en tant qu'administrateur pour obtenir un token JWT"
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Commandes",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:5000/api/commandes",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "commandes"
+          ]
+        },
+        "description": "Obtenir toutes les commandes pour trouver un ID valide"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Acompte Paye - True",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"acomptepaye\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/commandes/1/acomptepaye",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "commandes",
+            "1",
+            "acomptepaye"
+          ]
+        },
+        "description": "Mettre à jour le statut de paiement de l'acompte à true"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Acompte Paye - False",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"acomptepaye\": false\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/commandes/1/acomptepaye",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "commandes",
+            "1",
+            "acomptepaye"
+          ]
+        },
+        "description": "Mettre à jour le statut de paiement de l'acompte à false"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Commande Details",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:5000/api/commandes/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "commandes",
+            "1"
+          ]
+        },
+        "description": "Obtenir les détails d'une commande pour vérifier que le statut de paiement de l'acompte a été mis à jour"
+      },
+      "response": []
+    }
+  ]
+}

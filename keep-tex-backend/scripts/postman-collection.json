@@ -1,0 +1,144 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6",
+    "name": "KeepTex API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"admin@keeptex.fr\",\n    \"password\": \"test1234\"\n}"
+            },
+            "url": {
+              "raw": "http://192.168.1.128:5000/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "192",
+                "168",
+                "1",
+                "128"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Connexion à l'API avec les identifiants admin"
+          },
+          "response": []
+        },
+        {
+          "name": "Test Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"admin@keeptex.fr\",\n    \"password\": \"test1234\"\n}"
+            },
+            "url": {
+              "raw": "http://192.168.1.128:5000/api/auth/test-login",
+              "protocol": "http",
+              "host": [
+                "192",
+                "168",
+                "1",
+                "128"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "test-login"
+              ]
+            },
+            "description": "Route de test pour la connexion"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://192.168.1.128:5000/api/auth/me",
+              "protocol": "http",
+              "host": [
+                "192",
+                "168",
+                "1",
+                "128"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Récupérer les informations de l'utilisateur connecté"
+          },
+          "response": []
+        }
+      ],
+      "description": "Tests d'authentification"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Capture automatiquement le token JWT après une connexion réussie",
+          "if (pm.response.code === 200 && pm.response.json().token) {",
+          "    pm.environment.set(\"token\", pm.response.json().token);",
+          "    console.log(\"Token JWT capturé et enregistré dans la variable d'environnement\");",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}

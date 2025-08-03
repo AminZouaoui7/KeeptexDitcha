@@ -97,6 +97,10 @@ const orderService = {
         return { label: 'Contrôle', color: '#f97316' };
       case 'termine':
         return { label: 'Terminée', color: '#10b981' };
+      case 'livree':
+        return { label: 'Livrée', color: '#059669' };
+      case 'annulee':
+        return { label: 'Annulée', color: '#dc2626' };
       default:
         return { label: 'En attente', color: '#f59e0b' };
     }
@@ -104,7 +108,13 @@ const orderService = {
 
   // Calculer le pourcentage d'avancement
   calculateProgress: (etat) => {
-    const etapes = ['en attente', 'conception', 'patronnage', 'coupe', 'confection', 'finition', 'controle', 'termine'];
+    const etapes = ['en attente', 'conception', 'patronnage', 'coupe', 'confection', 'finition', 'controle', 'termine', 'livree'];
+    
+    // Cas spécial pour les commandes annulées
+    if (etat === 'annulee') {
+      return 0;
+    }
+    
     const index = etapes.indexOf(etat);
     return Math.round((index / (etapes.length - 1)) * 100);
   },
@@ -120,7 +130,9 @@ const orderService = {
       'confection': 3,
       'finition': 2,
       'controle': 1,
-      'termine': 0
+      'termine': 0,
+      'livree': 0,
+      'annulee': 0
     };
     
     return estimations[etat] || 0;

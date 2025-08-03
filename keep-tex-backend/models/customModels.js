@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../sequelize');
+const User = require('./User');
 
 const Commande = sequelize.define('Commande', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -12,8 +13,9 @@ const Commande = sequelize.define('Commande', {
   quantite_totale: { type: DataTypes.INTEGER, allowNull: true },
   prix_total: { type: DataTypes.DECIMAL(10, 2), allowNull: true },
   acompte_requis: { type: DataTypes.DECIMAL(10, 2), allowNull: true },
+  acomptepaye: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
   date: { type: DataTypes.DATEONLY, allowNull: false, defaultValue: DataTypes.NOW },
-  etat: { type: DataTypes.ENUM('en attente', 'conception', 'patronnage', 'coupe', 'confection', 'finition', 'controle', 'termine'), allowNull: false, defaultValue: 'en attente' },
+  etat: { type: DataTypes.ENUM('en attente', 'conception', 'patronnage', 'coupe', 'confection', 'finition', 'controle', 'termine', 'livree', 'annulee'), allowNull: false, defaultValue: 'en attente' },
   userId: { type: DataTypes.UUID, allowNull: false },
   description: { type: DataTypes.STRING, allowNull: true }
 }, { tableName: 'Commandes' });
@@ -44,5 +46,9 @@ const Feedback = sequelize.define('Feedback', {
 // Définir les relations entre les modèles
 Commande.hasMany(CommandeTaille, { foreignKey: 'commande_id', as: 'tailles' });
 CommandeTaille.belongsTo(Commande, { foreignKey: 'commande_id' });
+
+// Définir la relation entre Commande et User
+Commande.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+User.hasMany(Commande, { foreignKey: 'userId' });
 
 module.exports = { Commande, CommandeTaille, Produit, Feedback };

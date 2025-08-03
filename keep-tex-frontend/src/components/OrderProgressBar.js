@@ -39,7 +39,7 @@ const OrderProgressBar = ({ etat, type }) => {
     if (etat) {
       console.log('Mise à jour des étapes en fonction du statut:', etat);
       // Déterminer l'index de l'étape actuelle
-      const etatsOrdre = ['en attente', 'conception', 'patronnage', 'coupe', 'confection', 'finition', 'controle', 'termine'];
+      const etatsOrdre = ['en attente', 'conception', 'patronnage', 'coupe', 'confection', 'finition', 'controle', 'termine', 'livree', 'annulee'];
       const currentIndex = etatsOrdre.indexOf(etat);
       console.log('Index de l\'étape actuelle:', currentIndex);
       
@@ -60,9 +60,15 @@ const OrderProgressBar = ({ etat, type }) => {
           status.current = true;
         }
         
-        // Pour les commandes terminées, toutes les étapes sont complétées
-        if (etat === 'termine') {
+        // Pour les commandes terminées, livrées ou annulées, toutes les étapes sont complétées
+        if (etat === 'termine' || etat === 'livree') {
           status.completed = true;
+          status.current = false;
+        }
+        
+        // Pour les commandes annulées, on ne marque pas les étapes comme complétées
+        if (etat === 'annulee') {
+          status.completed = false;
           status.current = false;
         }
         
@@ -97,13 +103,40 @@ const OrderProgressBar = ({ etat, type }) => {
     );
   };
 
+  // Affichage spécial pour les commandes livrées ou annulées
+  const renderSpecialStatus = () => {
+    if (etat === 'livree') {
+      return (
+        <div className="special-status delivered">
+          <FontAwesomeIcon icon={faCheckCircle} className="status-icon" />
+          <div className="status-message">
+            <h4>Commande livrée</h4>
+            <p>Cette commande a été livrée avec succès.</p>
+          </div>
+        </div>
+      );
+    } else if (etat === 'annulee') {
+      return (
+        <div className="special-status cancelled">
+          <FontAwesomeIcon icon={faTshirt} className="status-icon" />
+          <div className="status-message">
+            <h4>Commande annulée</h4>
+            <p>Cette commande a été annulée.</p>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="order-progress-section">
       <h3>Progression de la commande</h3>
       <div className="order-type-badge">
         {(type === 'pieces-coupees' || type === 'pièce coupée' || type === 'pièces coupées') ? 'Pièces Coupées' : 'De A à Z'}
       </div>
-      {renderProgressGraph()}
+      {renderSpecialStatus()}
+      {etat !== 'livree' && etat !== 'annulee' && renderProgressGraph()}
     </div>
   );
 };

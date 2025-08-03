@@ -5,7 +5,8 @@ const {
   getMe,
   logout,
   verifyEmail,
-  getConfirmationCode
+  getConfirmationCode,
+  testLogin
 } = require('../controllers/authController');
 
 const { protect } = require('../middleware/auth');
@@ -15,6 +16,7 @@ const router = express.Router();
 router.post('/verify-email', verifyEmail);
 router.post('/register', register);
 router.post('/login', login);
+router.post('/test-login', testLogin);
 router.get('/me', protect, getMe);
 router.get('/logout', protect, logout);
 router.get('/get-confirmation-code', getConfirmationCode);

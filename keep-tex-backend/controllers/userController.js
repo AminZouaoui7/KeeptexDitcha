@@ -1,5 +1,6 @@
 const userService = require('../services/UserService');
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -332,6 +333,59 @@ exports.changePassword = async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Erreur serveur'
+    });
+  }
+};
+
+// @desc    Add employee
+// @route   POST /api/users/add-employee
+// @access  Private/Admin
+exports.addEmployee = async (req, res) => {
+  try {
+    // Récupérer le nom depuis le corps de la requête
+    const { name } = req.body;
+    
+    // Vérifier que le nom est fourni
+    if (!name) {
+      return res.status(400).json({
+        success: false,
+        error: 'Le nom est requis'
+      });
+    }
+    
+    // Générer un email temporaire unique
+    const email = `${Date.now()}@keeptemp.com`;
+    
+    // Mot de passe par défaut
+    const defaultPassword = 'Keeptemp@123';
+    
+    // Créer l'objet utilisateur avec les champs requis et optionnels
+    const userData = {
+      name,
+      email,
+      password: defaultPassword,
+      role: 'employee',
+      emailConfirmed: false,
+      // Champs optionnels
+      num: req.body.num || null,
+      etat: req.body.etat === 'Déclaré(e)' ? 'Déclaré(e)' : (req.body.etat === 'Non Déclaré(e)' ? 'Non Déclaré(e)' : null),
+      salaire_h: req.body.salaire_h || null,
+      cin: req.body.cin || null
+    };
+    
+    // Créer l'utilisateur
+    const user = await userService.createUser(userData);
+    
+    res.status(201).json({
+      success: true,
+      message: 'Employé ajouté avec succès',
+      data: user
+    });
+  } catch (err) {
+    console.error('Erreur lors de l\'ajout d\'un employé:', err);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur serveur lors de l\'ajout de l\'employé'
     });
   }
 };

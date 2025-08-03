@@ -1,4 +1,5 @@
 const { Commande, CommandeTaille } = require('../models/customModels');
+const User = require('../models/User');
 
 class CommandeRepository {
   async create(commandeData, options = {}) {
@@ -7,20 +8,29 @@ class CommandeRepository {
 
   async findById(id) {
     return await Commande.findByPk(id, {
-      include: [{ model: CommandeTaille, as: 'tailles' }]
+      include: [
+        { model: CommandeTaille, as: 'tailles' },
+        { model: User, as: 'user', attributes: ['id', 'name', 'email'] }
+      ]
     });
   }
 
   async findAll() {
     return await Commande.findAll({
-      include: [{ model: CommandeTaille, as: 'tailles' }]
+      include: [
+        { model: CommandeTaille, as: 'tailles' },
+        { model: User, as: 'user', attributes: ['id', 'name', 'email'] }
+      ]
     });
   }
   
   async findByUserId(userId) {
     return await Commande.findAll({
       where: { userId },
-      include: [{ model: CommandeTaille, as: 'tailles' }]
+      include: [
+        { model: CommandeTaille, as: 'tailles' },
+        { model: User, as: 'user', attributes: ['id', 'name', 'email'] }
+      ]
     });
   }
 

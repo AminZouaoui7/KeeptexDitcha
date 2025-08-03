@@ -118,3 +118,62 @@
   border-radius: 9999px;
   margin-bottom: 1.5rem;
 }
+
+/* Styles pour les états spéciaux */
+.special-status {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.special-status.delivered {
+  background-color: #ecfdf5;
+  border: 1px solid #10b981;
+}
+
+.special-status.cancelled {
+  background-color: #fef2f2;
+  border: 1px solid #ef4444;
+}
+
+.special-status .status-icon {
+  font-size: 2rem;
+  margin-right: 1.5rem;
+}
+
+.special-status.delivered .status-icon {
+  color: #10b981;
+}
+
+.special-status.cancelled .status-icon {
+  color: #ef4444;
+}
+
+.special-status .status-message h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.special-status.delivered .status-message h4 {
+  color: #065f46;
+}
+
+.special-status.cancelled .status-message h4 {
+  color: #b91c1c;
+}
+
+.special-status .status-message p {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.special-status.delivered .status-message p {
+  color: #065f46;
+}
+
+.special-status.cancelled .status-message p {
+  color: #b91c1c;
+}

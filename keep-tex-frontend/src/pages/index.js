@@ -14,5 +14,6 @@ export { default as UserOrdersPage } from './UserOrdersPage';
 export { default as OrdersPage } from './OrdersPage';
 export { default as OrderDetailsPage } from './OrderDetailsPage';
 export { default as OrderDetailPage } from './OrderDetailPage';
+export { default as CommandesAvecUtilisateurPage } from './CommandesAvecUtilisateurPage';
 // Removed export of ProfilePage as it is deleted
 // export { default as ProfilePage } from './ProfilePage';

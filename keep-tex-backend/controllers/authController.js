@@ -2,6 +2,8 @@ const User = require('../models/User');
 const userService = require('../services/UserService');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
+const bcrypt = require('bcryptjs');
+const sequelize = require('../sequelize');
 
 // Stockage temporaire des utilisateurs en attente de confirmation d'email
 const pendingUsers = new Map();
@@ -125,20 +127,28 @@ exports.register = async (req, res) => {
 // @access  Public
 exports.login = async (req, res) => {
   try {
+    console.log('Login attempt:', req.body);
     const { email, password } = req.body;
 
     // Validate email & password
     if (!email || !password) {
+      console.log('Missing email or password');
       return res.status(400).json({
         success: false,
         error: 'Veuillez fournir un email et un mot de passe'
       });
     }
 
+    // Convertir l'email en minuscules pour éviter les problèmes de casse
+    const normalizedEmail = email.toLowerCase();
+    console.log('Normalized email:', normalizedEmail);
+
     // Check for user using UserService
-    const user = await userService.getUserByEmail(email);
+    const user = await userService.getUserByEmail(normalizedEmail);
+    console.log('User found:', user ? 'Yes' : 'No');
 
     if (!user) {
+      console.log('User not found with email:', normalizedEmail);
       return res.status(401).json({
         success: false,
         error: 'Identifiants invalides'
@@ -146,17 +156,22 @@ exports.login = async (req, res) => {
     }
 
     // Check if password matches
+    console.log('Checking password match...');
     const isMatch = await user.matchPassword(password);
+    console.log('Password match result:', isMatch);
 
     if (!isMatch) {
+      console.log('Password does not match for user:', normalizedEmail);
       return res.status(401).json({
         success: false,
         error: 'Identifiants invalides'
       });
     }
 
+    console.log('Login successful for user:', normalizedEmail);
     sendTokenResponse(user, 200, res);
   } catch (err) {
+    console.error('Login error:', err);
     res.status(500).json({
       success: false,
       error: 'Erreur serveur'
@@ -214,6 +229,77 @@ exports.getConfirmationCode = (req, res) => {
     return res.status(404).json({ success: false, error: 'No pending confirmation code found for this email' });
   }
   res.status(200).json({ success: true, code: pendingUser.code });
+};
+
+// @desc    Test login route
+// @route   POST /api/auth/test-login
+// @access  Public
+exports.testLogin = async (req, res) => {
+  try {
+    console.log('Test login attempt:', req.body);
+    const { email, password } = req.body;
+
+    // Validate email & password
+    if (!email || !password) {
+      console.log('Test login: Missing email or password');
+      return res.status(400).json({
+        success: false,
+        error: 'Veuillez fournir un email et un mot de passe'
+      });
+    }
+
+    // Convertir l'email en minuscules
+    const normalizedEmail = email.toLowerCase();
+    console.log('Test login: Normalized email:', normalizedEmail);
+
+    // Vérifier si l'utilisateur existe directement dans la base de données
+    const [users] = await sequelize.query(
+      `SELECT * FROM users WHERE LOWER(email) = LOWER('${normalizedEmail}')`
+    );
+    console.log('Test login: Raw DB query result:', users);
+
+    if (users.length === 0) {
+      console.log('Test login: User not found in database');
+      return res.status(401).json({
+        success: false,
+        error: 'Utilisateur non trouvé'
+      });
+    }
+
+    const user = users[0];
+    console.log('Test login: User found:', user.email);
+
+    // Vérifier le mot de passe avec bcrypt directement
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Test login: Password match result:', isMatch);
+
+    if (!isMatch) {
+      console.log('Test login: Password does not match');
+      return res.status(401).json({
+        success: false,
+        error: 'Mot de passe incorrect'
+      });
+    }
+
+    console.log('Test login: Login successful');
+    res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (err) {
+    console.error('Test login error:', err);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      details: err.message
+    });
+  }
 };
 
 // Get token from model, create cookie and send response
