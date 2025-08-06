@@ -1,10 +1,7 @@
-const dotenv = require('dotenv');
-
-dotenv.config();
-
 const { Sequelize } = require('sequelize');
+require('dotenv').config();
 
-const sequelize = new Sequelize(process.env.POSTGRES_URI || 'postgres://postgres:1234@localhost:5433/keeptex', {
+const sequelize = new Sequelize(process.env.POSTGRES_URI, {
   dialect: 'postgres',
   logging: false,
 });

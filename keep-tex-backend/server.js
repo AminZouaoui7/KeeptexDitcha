@@ -1,18 +1,21 @@
-const express = require('express');
-const sequelize = require('./sequelize');
-const cors = require('cors');
 const dotenv = require('dotenv');
 
-// Load environment variables
+// Load environment variables first, before any other imports
 dotenv.config();
+
+// Now import other modules after environment variables are loaded
+const express = require('express');
+const cors = require('cors');
+const sequelize = require('./sequelize');
 
 // Initialize Express app
 const app = express();
 
 // Middleware
-// Configuration CORS avancée pour permettre les appels depuis React et Flutter Web
+// Configuration CORS pour permettre les appels depuis React et Flutter Web
 app.use(cors({
-  origin: '*', // Permet l'accès depuis n'importe quelle origine
+  origin: '*',
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
@@ -74,6 +77,8 @@ app.use('/api/commandes', require('./routes/commandeRoutes'));
 app.use('/api/commande-tailles', require('./routes/commandeTailleRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/feedbacks', require('./routes/feedbackRoutes'));
+app.use('/api/articles', require('./routes/articleRoutes'));
+app.use('/api/stock-movements', require('./routes/stockMovementRoutes'));
 
 // Serve static files (for production)
 if (process.env.NODE_ENV === 'production') {
@@ -85,6 +90,7 @@ app.use('/uploads', express.static('uploads'));
 
 // Connect to PostgreSQL using Sequelize with enhanced error handling
 const connectDB = async () => {
+  console.log('Attempting connection with URI:', process.env.POSTGRES_URI);
   try {
     await sequelize.authenticate();
     console.log('✅ PostgreSQL connected successfully');
