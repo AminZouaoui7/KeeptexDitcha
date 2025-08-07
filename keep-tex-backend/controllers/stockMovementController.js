@@ -1,5 +1,6 @@
 const StockMovement = require('../models/StockMovement');
 const Article = require('../models/Article');
+const User = require('../models/User');
 const { Op } = require('sequelize');
 
 // GET /api/stock-movements - Récupérer tous les mouvements de stock
@@ -29,15 +30,44 @@ exports.getAllStockMovements = async (req, res) => {
 
     const movements = await StockMovement.findAndCountAll({
       where: whereClause,
+      include: [
+        {
+          model: Article,
+          as: 'article',
+          attributes: ['nom', 'categorie', 'couleur', 'taille']
+        }
+      ],
       order: [['createdAt', 'DESC']],
       limit: parseInt(limit),
       offset: parseInt(offset)
     });
 
+    // Process the movements to include user information
+    const processedMovements = movements.rows.map(movement => {
+      const movementData = movement.toJSON();
+      return {
+        ...movementData,
+        article: movementData.article ? {
+          nom: movementData.article.nom || 'Article sans nom',
+          categorie: movementData.article.categorie,
+          couleur: movementData.article.couleur,
+          taille: movementData.article.taille
+        } : {
+          nom: 'Article inconnu',
+          categorie: null,
+          couleur: null,
+          taille: null
+        },
+        user: {
+          name: movementData.utilisateur || 'Système'
+        }
+      };
+    });
+
     res.status(200).json({
       success: true,
       count: movements.count,
-      data: movements.rows,
+      data: processedMovements,
       pagination: {
         limit: parseInt(limit),
         offset: parseInt(offset),
