@@ -80,6 +80,7 @@ app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/feedbacks', require('./routes/feedbackRoutes'));
 app.use('/api/articles', require('./routes/articleRoutes'));
 app.use('/api/stock-movements', require('./routes/stockMovementRoutes'));
+app.use('/api/attendance', require('./routes/attendanceRoutes'));
 
 // Serve static files (for production)
 if (process.env.NODE_ENV === 'production') {

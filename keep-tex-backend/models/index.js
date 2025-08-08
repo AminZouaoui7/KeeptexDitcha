@@ -4,6 +4,7 @@ const sequelize = require('../sequelize');
 const StockMovement = require('./StockMovement');
 const Article = require('./Article');
 const User = require('./User');
+const Attendance = require('./Attendance');
 const { Commande, CommandeTaille, Produit, Feedback } = require('./customModels');
 
 // Create models object
@@ -11,6 +12,7 @@ const models = {
   StockMovement,
   Article,
   User,
+  Attendance,
   Commande,
   CommandeTaille,
   Produit,

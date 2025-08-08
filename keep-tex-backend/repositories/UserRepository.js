@@ -6,7 +6,15 @@ class UserRepository {
   }
 
   async findById(id) {
-    return await User.findByPk(id);
+    console.log('UserRepository.findById called with id:', id, 'type:', typeof id);
+    try {
+      const user = await User.findByPk(id);
+      console.log('UserRepository.findById result:', user ? 'found' : 'not found', user?.id);
+      return user;
+    } catch (error) {
+      console.error('UserRepository.findById error:', error);
+      throw error;
+    }
   }
 
   async findByEmail(email) {

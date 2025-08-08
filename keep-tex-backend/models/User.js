@@ -67,7 +67,8 @@ User.init({
     type: DataTypes.INTEGER,
     allowNull: true
   },
-  absence: {
+
+  presence: {
     type: DataTypes.INTEGER,
     allowNull: true
   },
@@ -128,5 +129,15 @@ User.init({
     }
   }
 });
+
+// Associations
+User.associate = (models) => {
+  if (models.Attendance) {
+    User.hasMany(models.Attendance, {
+      foreignKey: 'employee_id',
+      as: 'attendances'
+    });
+  }
+};
 
 module.exports = User;

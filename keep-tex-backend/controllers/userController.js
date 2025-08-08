@@ -190,73 +190,6 @@ exports.requestEmailConfirmation = async (req, res, next) => {
 // @route   PUT /api/users/:id
 // @access  Private/Admin
 exports.updateProfile = async (req, res, next) => {
-
-// @desc    Mark user as absent
-// @route   PUT /api/users/:userId/mark-absent
-// @access  Private/Admin
-exports.markAbsent = async (req, res) => {
-  try {
-    console.log('=== markAbsent endpoint called ===');
-    console.log('Full request URL:', req.originalUrl);
-    console.log('Request params object:', JSON.stringify(req.params));
-    console.log('Request params.id:', req.params.id);
-    console.log('Request params.userId:', req.params.userId);
-    
-    const userId = req.params.id;
-    const { absenceCount } = req.body;
-
-    console.log('Extracted userId:', userId);
-    console.log('Request body:', req.body);
-
-    if (!userId) {
-      console.log('ERROR: userId is missing from params');
-      return res.status(400).json({
-        success: false,
-        error: 'User ID parameter is required'
-      });
-    }
-
-    console.log('Looking up user with ID:', userId, typeof userId);
-    const user = await userService.getUserById(userId);
-
-    console.log('User lookup result:', user ? 'FOUND' : 'NOT FOUND');
-    if (user) {
-      console.log('User details:', { id: user.id, name: user.name, role: user.role });
-    }
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: 'Utilisateur non trouvé'
-      });
-    }
-
-    if (user.role !== 'employee') {
-      return res.status(400).json({
-        success: false,
-        error: 'Seuls les employés peuvent être marqués comme absents'
-      });
-    }
-
-    const newAbsenceCount = (absenceCount !== undefined && typeof absenceCount === 'number')
-      ? absenceCount
-      : (user.absence || 0) + 1;
-
-    const updatedUser = await userService.updateUser(userId, { absence: newAbsenceCount });
-
-    res.status(200).json({
-      success: true,
-      message: `Employé marqué comme absent. Total absences: ${updatedUser.absence}`,
-      data: updatedUser
-    });
-  } catch (err) {
-    console.error('Erreur lors du marquage d\'absence:', err);
-    res.status(500).json({
-      success: false,
-      error: 'Erreur serveur'
-    });
-  }
-};
   try {
     const user = await userService.getUserById(req.user.id);
 
@@ -453,51 +386,6 @@ exports.addEmployee = async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Erreur serveur lors de l\'ajout de l\'employé'
-    });
-  }
-};
-
-// @desc    Mark user as absent
-// @route   PUT /api/users/:id/mark-absent
-// @access  Private/Admin
-exports.markAbsent = async (req, res) => {
-  try {
-    const userId = req.params.id;
-    const { absenceCount = 1 } = req.body;
-
-    const user = await userService.getUserById(userId);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: 'Utilisateur non trouvé'
-      });
-    }
-
-    // Vérifier que c'est un employé
-    if (user.role !== 'employee') {
-      return res.status(400).json({
-        success: false,
-        error: 'Cette action est réservée aux employés'
-      });
-    }
-
-    // Mettre à jour le compteur d'absence
-    const updatedAbsence = (user.absence || 0) + absenceCount;
-    
-    const updatedUser = await userService.updateUser(userId, {
-      absence: updatedAbsence
-    });
-
-    res.status(200).json({
-      success: true,
-      message: `Employé marqué comme absent. Total absences: ${updatedAbsence}`,
-      data: updatedUser
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: 'Erreur serveur'
     });
   }
 };
