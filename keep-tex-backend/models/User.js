@@ -67,7 +67,6 @@ User.init({
     type: DataTypes.INTEGER,
     allowNull: true
   },
-
   presence: {
     type: DataTypes.INTEGER,
     allowNull: true

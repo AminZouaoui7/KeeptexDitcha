@@ -1,22 +1,27 @@
 const express = require('express');
+const router = express.Router();
 const {
-  createOrUpdateAttendance,
-  getAttendanceByDate
+  upsertAttendance,
+  getAttendanceByDate,
+  getRoster,
+  bulkUpsert,
+  seedDayAbsent
 } = require('../controllers/attendanceController');
 const { protect, authorize } = require('../middleware/auth');
 
-const router = express.Router();
-
-// 🔒 Toutes les routes nécessitent une authentification et des privilèges admin
+// Toutes les routes nécessitent une authentification
 router.use(protect);
-router.use(authorize('admin'));
 
-// @route   POST /api/attendance
-// @desc    Créer ou mettre à jour une présence
-router.post('/', createOrUpdateAttendance);
+// Routes existantes
+router.route('/')
+  .get(getAttendanceByDate)
+  .post(upsertAttendance);
 
-// @route   GET /api/attendance?date=YYYY-MM-DD
-// @desc    Récupérer les présences par date
-router.get('/', getAttendanceByDate);
+
+
+// Nouvelles routes pour le pointage d\'équipe
+router.get('/roster', authorize('admin'), getRoster);
+router.post('/bulk', authorize('admin'), bulkUpsert);
+router.post('/seed-absent', authorize('admin'), seedDayAbsent);
 
 module.exports = router;

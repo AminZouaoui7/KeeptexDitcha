@@ -1,17 +1,25 @@
 const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../sequelize');
 
-class Attendance extends Model {}
+class Attendance extends Model {
+  static associate(models) {
+    Attendance.belongsTo(models.User, {
+      foreignKey: 'user_id',
+      as: 'user'
+    });
+  }
+}
 
 Attendance.init({
   id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true
   },
-  employee_id: {
+  userId: {
     type: DataTypes.UUID,
     allowNull: false,
+    field: 'user_id',
     references: {
       model: 'users',
       key: 'id'
@@ -23,42 +31,39 @@ Attendance.init({
     allowNull: false
   },
   status: {
-    type: DataTypes.ENUM('Présent', 'Absent'),
+    type: DataTypes.ENUM('present', 'absent', 'late', 'conge', 'non_defini'),
     allowNull: false,
-    defaultValue: 'Absent'
+    defaultValue: 'non_defini'
   },
-  check_in: {
-    type: DataTypes.STRING(5),
-    allowNull: true,
-    validate: {
-      is: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/
-    }
+  checkIn: {
+    type: DataTypes.TIME,
+    field: 'check_in',
+    allowNull: true
   },
-  check_out: {
-    type: DataTypes.STRING(5),
-    allowNull: true,
-    validate: {
-      is: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/
-    }
+  checkOut: {
+    type: DataTypes.TIME,
+    field: 'check_out',
+    allowNull: true
+  },
+  notes: {
+    type: DataTypes.TEXT,
+    allowNull: true
   }
 }, {
   sequelize,
   modelName: 'Attendance',
   tableName: 'attendances',
+  underscored: false,
+  timestamps: true,
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
   indexes: [
     {
       unique: true,
-      fields: ['employee_id', 'date']
+      fields: ['user_id', 'date'],
+      name: 'attendances_user_date_unique'
     }
   ]
 });
-
-// Associations
-Attendance.associate = (models) => {
-  Attendance.belongsTo(models.User, {
-    foreignKey: 'employee_id',
-    as: 'employee'
-  });
-};
 
 module.exports = Attendance;

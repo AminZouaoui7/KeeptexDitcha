@@ -81,6 +81,9 @@ app.use('/api/feedbacks', require('./routes/feedbackRoutes'));
 app.use('/api/articles', require('./routes/articleRoutes'));
 app.use('/api/stock-movements', require('./routes/stockMovementRoutes'));
 app.use('/api/attendance', require('./routes/attendanceRoutes'));
+app.use('/api/performance', require('./routes/performanceRoutes'));
+app.use('/api/employees', require('./routes/employeeRoutes'));
+
 
 // Serve static files (for production)
 if (process.env.NODE_ENV === 'production') {
