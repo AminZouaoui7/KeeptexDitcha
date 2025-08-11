@@ -31,9 +31,9 @@ Attendance.init({
     allowNull: false
   },
   status: {
-    type: DataTypes.ENUM('present', 'absent', 'late', 'conge', 'non_defini'),
+    type: DataTypes.ENUM('present', 'absent', 'conge'),
     allowNull: false,
-    defaultValue: 'non_defini'
+    defaultValue: 'present'
   },
   checkIn: {
     type: DataTypes.TIME,

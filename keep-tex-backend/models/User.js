@@ -47,7 +47,21 @@ User.init({
   },
   role: {
     type: DataTypes.ENUM('user', 'admin', 'employee', 'client'),
-    defaultValue: 'user'
+    defaultValue: 'user',
+    set(value) {
+      if (value) {
+        this.setDataValue('role', value.toLowerCase());
+      }
+    }
+  },
+  status: {
+    type: DataTypes.ENUM('active', 'inactive', 'suspended'),
+    defaultValue: 'active',
+    set(value) {
+      if (value) {
+        this.setDataValue('status', value.toLowerCase());
+      }
+    }
   },
   // Champs pour les clients
   num: {
@@ -61,7 +75,11 @@ User.init({
   },
   salaire_h: {
     type: DataTypes.DOUBLE,
-    allowNull: true
+    allowNull: true,
+    validate: {
+      isNumeric: { msg: 'Le salaire horaire doit être un nombre valide' },
+      min: { args: [0], msg: 'Le salaire horaire ne peut pas être négatif' }
+    }
   },
   conge: {
     type: DataTypes.INTEGER,
@@ -74,6 +92,14 @@ User.init({
   cin: {
     type: DataTypes.INTEGER,
     allowNull: true
+  },
+  phone: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    validate: {
+      isNumeric: { msg: 'Le numéro de téléphone doit contenir uniquement des chiffres' },
+      len: { args: [8, 15], msg: 'Le numéro de téléphone doit contenir entre 8 et 15 chiffres' }
+    }
   },
   accounte: {
     type: DataTypes.DOUBLE,

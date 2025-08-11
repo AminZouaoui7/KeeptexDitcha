@@ -49,12 +49,12 @@ const upsertAttendance = async (req, res) => {
       });
     }
 
-    // Validation du statut
-    const validStatuses = ['present', 'absent', 'late', 'conge', 'non_defini'];
+    // Validation du statut (middleware already handles this)
+    const validStatuses = ['present', 'absent', 'conge'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
-        message: 'Statut invalide. Les valeurs autorisées sont: present, absent, late, conge, non_defini'
+        message: 'Invalid status. Allowed values: present, absent, conge'
       });
     }
 
@@ -289,8 +289,8 @@ const bulkUpsert = async (req, res) => {
       });
     }
 
-    // Validation des statuts
-    const validStatuses = ['present', 'absent', 'late'];
+    // Validation des statuts (middleware already handles this)
+    const validStatuses = ['present', 'absent', 'conge'];
     const cleanRecords = [];
 
     for (const record of records) {
@@ -298,7 +298,7 @@ const bulkUpsert = async (req, res) => {
         await transaction.rollback();
         return res.status(400).json({
           success: false,
-          message: 'Chaque enregistrement doit avoir un userId'
+          message: 'Each record must have a userId'
         });
       }
 
@@ -306,7 +306,7 @@ const bulkUpsert = async (req, res) => {
         await transaction.rollback();
         return res.status(400).json({
           success: false,
-          message: 'Chaque enregistrement doit avoir un status'
+          message: 'Each record must have a status'
         });
       }
 
@@ -314,7 +314,7 @@ const bulkUpsert = async (req, res) => {
         await transaction.rollback();
         return res.status(400).json({
           success: false,
-          message: `Statut invalide: ${record.status}. Valeurs autorisées: present, absent, late`
+          message: `Invalid status: ${record.status}. Allowed values: present, absent, conge`
         });
       }
 
@@ -439,10 +439,184 @@ const seedDayAbsent = async (req, res) => {
   }
 };
 
+/**
+ * Récupère les statistiques mensuelles de présence par employé
+ * @route GET /api/attendance/stats
+ * @route GET /api/performance
+ * @param {string} month - Mois au format YYYY-MM (query parameter)
+ * @returns {Object} Statistiques de présence par employé
+ */
+const getMonthlyAttendanceStats = async (req, res) => {
+  try {
+    const { month } = req.query;
+
+    // Validation du format month avec regex
+    const monthRegex = /^\d{4}-\d{2}$/;
+    if (!month || !monthRegex.test(month)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'month must be YYYY-MM' 
+      });
+    }
+
+    // Construction des dates UTC
+    const [y, m] = month.split('-').map(Number);
+    const startDate = new Date(Date.UTC(y, m - 1, 1));
+    const endDate = new Date(Date.UTC(y, m, 1));
+
+    const query = `
+      SELECT 
+        u.id::text AS "userId",
+        COALESCE(u.name, u.email) AS "user_name",
+        SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END)::int AS present,
+        SUM(CASE WHEN a.status = 'absent'  THEN 1 ELSE 0 END)::int AS absent,
+        SUM(CASE WHEN a.status = 'conge'   THEN 1 ELSE 0 END)::int AS conge
+      FROM users u
+      LEFT JOIN attendance a
+        ON u.id = COALESCE(a.user_id, a."userId")
+       AND a.date >= :start AND a.date < :end
+      WHERE u.role = 'employee'
+      GROUP BY u.id, u.name, u.email
+      ORDER BY "user_name"
+    `;
+
+    const results = await sequelize.query(query, {
+      replacements: { start: startDate, end: endDate },
+      type: sequelize.QueryTypes.SELECT
+    });
+
+    console.info(`[STATS] month=${month} start=${startDate.toISOString()} end=${endDate.toISOString()} rows=${results.length}`);
+
+    res.json({
+      success: true,
+      data: results
+    });
+
+  } catch (error) {
+    console.error('[STATS] Error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching attendance statistics'
+    });
+  }
+};
+
+/**
+ * Récupère les statistiques de présence d'un employé sur une période donnée
+ * @route GET /api/employees/:id/stats
+ * @param {string} from - Date de début (YYYY-MM-DD)
+ * @param {string} to - Date de fin (YYYY-MM-DD)
+ * @returns {Object} Statistiques de présence {presents, absents, conges}
+ */
+const getEmployeeStats = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { from, to } = req.query;
+
+    // Validation de l'utilisateur
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Employee not found'
+      });
+    }
+
+    // Validation des dates
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!from || !to || !dateRegex.test(from) || !dateRegex.test(to)) {
+      return res.status(400).json({
+        success: false,
+        message: 'from and to must be YYYY-MM-DD'
+      });
+    }
+
+    const query = `
+      SELECT 
+        SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END)::int AS presents,
+        SUM(CASE WHEN status = 'absent' THEN 1 ELSE 0 END)::int AS absents,
+        SUM(CASE WHEN status = 'conge' THEN 1 ELSE 0 END)::int AS conges
+      FROM attendance
+      WHERE user_id = :userId 
+        AND date >= :from 
+        AND date <= :to
+    `;
+
+    const [stats] = await sequelize.query(query, {
+      replacements: { userId: id, from, to },
+      type: sequelize.QueryTypes.SELECT
+    });
+
+    // Ensure 0 values when no rows exist
+    const result = {
+      presents: stats.presents || 0,
+      absents: stats.absents || 0,
+      conges: stats.conges || 0
+    };
+
+    res.json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error('Error getting employee stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching employee statistics'
+    });
+  }
+};
+
+/**
+ * Récupère tous les employés avec leurs statistiques agrégées
+ * @route GET /api/employees
+ * @returns {Array} Liste des employés avec présent_j, absent_j, conge_j
+ */
+const getEmployeesWithStats = async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        u.id,
+        u.name,
+        u.email,
+        u.role,
+        COALESCE(SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END), 0)::int AS present_j,
+        COALESCE(SUM(CASE WHEN a.status = 'absent' THEN 1 ELSE 0 END), 0)::int AS absent_j,
+        COALESCE(SUM(CASE WHEN a.status = 'conge' THEN 1 ELSE 0 END), 0)::int AS conge_j
+      FROM users u
+      LEFT JOIN attendance a ON u.id = a.user_id
+      WHERE u.role = 'employee'
+      GROUP BY u.id, u.name, u.email, u.role
+      ORDER BY u.name
+    `;
+
+    const employees = await sequelize.query(query, {
+      type: sequelize.QueryTypes.SELECT
+    });
+
+    res.json({
+      success: true,
+      count: employees.length,
+      data: employees
+    });
+
+  } catch (error) {
+    console.error('Error getting employees with stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching employees with statistics'
+    });
+  }
+};
+
 module.exports = {
   upsertAttendance,
   getAttendanceByDate,
   getRoster,
   bulkUpsert,
-  seedDayAbsent
+  seedDayAbsent,
+  getMonthlyAttendanceStats,
+  getEmployeeStats,
+  getEmployeesWithStats
 };

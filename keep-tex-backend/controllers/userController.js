@@ -293,6 +293,88 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
+// @desc    Update user
+// @route   PUT /api/users/:id
+// @access  Private/Admin or User itself
+exports.updateUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    
+    // Whitelist allowed fields
+    const allowedFields = ['name', 'phone', 'cin', 'salary_h', 'status', 'role', 'email'];
+    const updateData = {};
+    
+    // Filter only allowed fields
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        let value = req.body[field];
+        
+        // Normalize inputs
+        if (field === 'email' && value) {
+          value = value.toLowerCase().trim();
+        } else if (field === 'salary_h' && value !== null && value !== undefined) {
+          value = Number(value);
+          if (isNaN(value)) {
+            return res.status(400).json({ error: 'Données invalides', details: 'salary_h must be a valid number' });
+          }
+        } else if ((field === 'role' || field === 'status') && value) {
+          value = value.toLowerCase();
+        } else if (typeof value === 'string') {
+          value = value.trim();
+        }
+        
+        updateData[field] = value;
+      }
+    });
+    
+    // Check if user exists
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'Utilisateur non trouvé' });
+    }
+    
+    // Update user
+    const updatedUser = await user.update(updateData);
+    
+    res.status(200).json({ 
+      success: true, 
+      user: updatedUser 
+    });
+    
+  } catch (error) {
+    console.error('Update user error:', error);
+    console.error('Full error stack:', error.stack);
+    
+    // Handle Sequelize validation errors
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(400).json({ 
+        error: 'Données invalides', 
+        details: error.errors.map(err => ({
+          field: err.path,
+          message: err.message
+        }))
+      });
+    }
+    
+    if (error.name === 'SequelizeValidationError') {
+      return res.status(400).json({ 
+        error: 'Données invalides', 
+        details: error.errors.map(err => ({
+          field: err.path,
+          message: err.message
+        }))
+      });
+    }
+    
+    // Handle other database errors
+    if (error.name === 'SequelizeDatabaseError') {
+      return res.status(400).json({ error: 'Données invalides' });
+    }
+    
+    next(error);
+  }
+};
+
 // @desc    Change user password
 // @route   PUT /api/users/:id/password
 // @access  Private

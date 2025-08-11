@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getMonthlyPerformance } = require('../controllers/performanceController');
+const { getMonthlyAttendanceStats } = require('../controllers/attendanceController');
 const { protect } = require('../middleware/auth');
 
 /**
@@ -9,6 +9,6 @@ const { protect } = require('../middleware/auth');
  * @access  Private (JWT required)
  * @query   month - Format YYYY-MM (ex: 2024-01)
  */
-router.get('/', protect, getMonthlyPerformance);
+router.get('/', protect, getMonthlyAttendanceStats);
 
 module.exports = router;
